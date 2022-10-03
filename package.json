@@ -1,0 +1,33 @@
+{
+  "name": "@ftrack/actions",
+  "description": "GitHub actions for ftrack",
+  "private": true,
+  "workspaces": [
+    ".github/actions/*"
+  ],
+  "scripts": {
+    "test": "vitest --run",
+    "lint": "eslint . && prettier -c ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ftrackhq/actions.git"
+  },
+  "keywords": [],
+  "homepage": "http://ftrack.com",
+  "lint-staged": {
+    "*.js": "eslint --cache --fix",
+    "*.{js,css,md,json,jsx,scss,yml}": "prettier --write"
+  },
+  "devDependencies": {
+    "cross-fetch": "^3.1.5",
+    "eslint": "^8.21.0",
+    "eslint-config-react-app": "^7.0.1",
+    "msw": "^0.47.4",
+    "prettier": "^2.7.1",
+    "typescript": "^4.8.4",
+    "vite": "^3.1.6",
+    "vitest": "^0.23.4"
+  },
+  "packageManager": "yarn@3.2.4"
+}

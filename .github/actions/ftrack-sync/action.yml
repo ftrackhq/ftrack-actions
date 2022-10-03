@@ -1,0 +1,37 @@
+name: ftrack Sync
+description: "Sync PR status with ftrack tasks provided in PR descriptions"
+inputs:
+  ftrackUrl:
+    description: "URL to the ftrack instance"
+    required: true
+  ftrackApiKey:
+    description: "API key to the ftrack instance"
+    required: true
+  ftrackLoginEmail:
+    description: "The ftrack user email to log in with using the corresponding API key"
+    required: true
+  ftrackUserId:
+    description: "The user ID to post notes as"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: 8BitJonny/gh-get-current-pr@2.1.1
+      id: PR
+      with:
+        sha: ${{ github.event.pull_request.head.sha }}
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v3
+      with:
+        node-version-file: ".nvmrc"
+    - name: yarn start
+      shell: bash
+      run: |
+        cd ${{ github.action_path }}
+        yarn install && yarn start
+      env:
+        FTRACK_API_KEY: ${{ inputs.ftrackApiKey }}
+        FTRACK_URL: ${{ inputs.ftrackUrl }}
+        FTRACK_LOGIN_EMAIL: ${{ inputs.ftrackLoginEmail }}
+        FTRACK_USER_ID: ${{ inputs.ftrackUserId }}
+        PR_JSON: ${{ steps.PR.outputs.pr }}

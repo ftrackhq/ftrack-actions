@@ -1,0 +1,31 @@
+name: PR
+
+on:
+  workflow_call:
+    secrets:
+      token:
+        description: "The GitHub token"
+        required: true
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+
+jobs:
+  check-pr:
+    name: Basic PR Checks & Sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: ftrack Sync
+        uses: ./.github/actions/ftrack-sync
+        with:
+          ftrackUrl: https://dev.ftrackapp.com
+          ftrackLoginEmail: "github_bot@ftrack.com"
+          ftrackUserId: "76a40852-359d-11ed-8012-aab5768efa1e"
+          ftrackApiKey: ${{ secrets.FTRACK_API_KEY }}
+      - name: Check PR Title
+        uses: ./.github/actions/check-pr-title
+        with:
+          token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
