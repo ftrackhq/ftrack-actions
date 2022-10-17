@@ -20,6 +20,7 @@
     "*.{js,css,md,json,jsx,scss,yml}": "prettier --write"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.40.0",
     "cross-fetch": "^3.1.5",
     "eslint": "^8.25.0",
     "eslint-config-react-app": "^7.0.1",
@@ -27,7 +28,7 @@
     "prettier": "^2.7.1",
     "typescript": "^4.8.4",
     "vite": "^3.1.8",
-    "vitest": "^0.24.1"
+    "vitest": "^0.24.3"
   },
   "packageManager": "yarn@3.2.4"
 }
