@@ -75,7 +75,10 @@ function getNoteRequestBody(action, pr, { noteId, taskId }) {
   const prStatus = getPrStatus(pr);
   const content = `PR opened: [${linkDescription}](${prUrl})
 
-Last change: ${new Date().toISOString().replace("T", " ").slice(0, -8)} GMT
+Last change: ${new Date()
+    .toISOString()
+    .replace("T", " ")
+    .slice(0, -8)} GMT<br />
 Current status: ${prStatus}`;
 
   return {

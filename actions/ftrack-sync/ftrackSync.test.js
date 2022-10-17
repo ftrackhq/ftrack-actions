@@ -96,7 +96,7 @@ describe("ftrack sync", () => {
           content:
             "PR opened: [ftrackhq/javascript-api/pulls/14](http://github.com/ftrackhq/javascript-api/pulls/14)\n" +
             "\n" +
-            "Last change: 2022-01-01 00:00 GMT\n" +
+            "Last change: 2022-01-01 00:00 GMT<br />\n" +
             "Current status: unknown",
           parent_type: "TypedContext",
           user_id: "user-id",
@@ -134,7 +134,7 @@ describe("ftrack sync", () => {
           content:
             "PR opened: [ftrackhq/javascript-api/pulls/14](http://github.com/ftrackhq/javascript-api/pulls/14)\n" +
             "\n" +
-            "Last change: 2022-01-01 00:00 GMT\n" +
+            "Last change: 2022-01-01 00:00 GMT<br />\n" +
             "Current status: unknown",
           parent_type: "TypedContext",
           user_id: "user-id",
@@ -179,7 +179,7 @@ describe("ftrack sync", () => {
           content:
             "PR opened: [ftrackhq/javascript-api/pulls/14](http://github.com/ftrackhq/javascript-api/pulls/14)\n" +
             "\n" +
-            "Last change: 2022-01-01 00:00 GMT\n" +
+            "Last change: 2022-01-01 00:00 GMT<br />\n" +
             "Current status: unknown",
           parent_type: "TypedContext",
           user_id: "user-id",
@@ -195,7 +195,7 @@ describe("ftrack sync", () => {
           content:
             "PR opened: [ftrackhq/javascript-api/pulls/14](http://github.com/ftrackhq/javascript-api/pulls/14)\n" +
             "\n" +
-            "Last change: 2022-01-01 00:00 GMT\n" +
+            "Last change: 2022-01-01 00:00 GMT<br />\n" +
             "Current status: unknown",
           parent_type: "TypedContext",
           user_id: "user-id",
@@ -239,7 +239,7 @@ describe("ftrack sync", () => {
           content:
             "PR opened: [ftrackhq/javascript-api/pulls/14](http://github.com/ftrackhq/javascript-api/pulls/14)\n" +
             "\n" +
-            "Last change: 2022-01-01 00:00 GMT\n" +
+            "Last change: 2022-01-01 00:00 GMT<br />\n" +
             "Current status: draft",
           parent_type: "TypedContext",
           user_id: "user-id",
@@ -283,7 +283,7 @@ describe("ftrack sync", () => {
           content:
             "PR opened: [ftrackhq/javascript-api/pulls/14](http://github.com/ftrackhq/javascript-api/pulls/14)\n" +
             "\n" +
-            "Last change: 2022-01-01 00:00 GMT\n" +
+            "Last change: 2022-01-01 00:00 GMT<br />\n" +
             "Current status: merged",
           parent_type: "TypedContext",
           user_id: "user-id",
@@ -327,7 +327,7 @@ describe("ftrack sync", () => {
           content:
             "PR opened: [ftrackhq/javascript-api/pulls/14](http://github.com/ftrackhq/javascript-api/pulls/14)\n" +
             "\n" +
-            "Last change: 2022-01-01 00:00 GMT\n" +
+            "Last change: 2022-01-01 00:00 GMT<br />\n" +
             "Current status: open",
           parent_type: "TypedContext",
           user_id: "user-id",
