@@ -59,12 +59,17 @@ async function groupIntoExistingAndNewNoteIds(noteIds) {
 function getNoteRequestBody(action, pr, { noteId, taskId }) {
   const prUrl = pr.html_url;
   const linkDescription = prUrl.match(/\.com\/(.+)/)[1];
-  const prStatus = pr.draft ? "draft" : !!pr.merged_at ? "merged" : !!pr.state ? pr.state : "unknown";
-  let content = `PR opened: [${linkDescription}](${prUrl})
+  const prStatus = pr.draft
+    ? "draft"
+    : !!pr.merged_at
+    ? "merged"
+    : !!pr.state
+    ? pr.state
+    : "unknown";
+  const content = `PR opened: [${linkDescription}](${prUrl})
 
 Last change: ${new Date().toISOString().replace("T", " ").slice(0, -8)} GMT
 Current status: ${prStatus}`;
-
 
   return {
     action,
