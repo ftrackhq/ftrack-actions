@@ -56,12 +56,15 @@ async function groupIntoExistingAndNewNoteIds(noteIds) {
   }
 }
 
-function getNoteRequestBody(action, prUrl, { noteId, taskId }) {
+function getNoteRequestBody(action, pr, { noteId, taskId }) {
+  const prUrl = pr.html_url;
   const linkDescription = prUrl.match(/\.com\/(.+)/)[1];
+  const prStatus = pr.draft ? "draft" : !!pr.merged_at ? "merged" : !!pr.state ? pr.state : "unknown";
+  let content = `PR opened: [${linkDescription}](${prUrl})
 
-  const content = `PR opened: [${linkDescription}](${prUrl})
+Last change: ${new Date().toISOString().replace("T", " ").slice(0, -8)} GMT
+Current status: ${prStatus}`;
 
-Last change: ${new Date().toISOString().replace("T", " ").slice(0, -8)} GMT`;
 
   return {
     action,
@@ -78,12 +81,12 @@ Last change: ${new Date().toISOString().replace("T", " ").slice(0, -8)} GMT`;
 }
 
 export async function getNotesRequestBody(PR) {
-  if (!PR.body) return [];
+  if (!PR.body || !PR.html_url) return [];
   const taskIds = getTaskIdsAndNoteIdsFromBody(PR.body, PR.html_url);
   if (taskIds.length === 0) return [];
   const { existingIds, newIds } = await groupIntoExistingAndNewNoteIds(taskIds);
   return [
-    ...newIds.map(getNoteRequestBody.bind(this, "create", PR.html_url)),
-    ...existingIds.map(getNoteRequestBody.bind(this, "update", PR.html_url)),
+    ...newIds.map(getNoteRequestBody.bind(this, "create", PR)),
+    ...existingIds.map(getNoteRequestBody.bind(this, "update", PR)),
   ];
 }
