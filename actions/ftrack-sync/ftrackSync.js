@@ -56,16 +56,23 @@ async function groupIntoExistingAndNewNoteIds(noteIds) {
   }
 }
 
+function getPrStatus(pr) {
+  if (!!pr.merged_at) {
+    return "merged";
+  }
+  if (pr.draft) {
+    return "draft";
+  }
+  if (!!pr.state) {
+    return pr.state;
+  }
+  return "unknown";
+}
+
 function getNoteRequestBody(action, pr, { noteId, taskId }) {
   const prUrl = pr.html_url;
   const linkDescription = prUrl.match(/\.com\/(.+)/)[1];
-  const prStatus = pr.draft
-    ? "draft"
-    : !!pr.merged_at
-    ? "merged"
-    : !!pr.state
-    ? pr.state
-    : "unknown";
+  const prStatus = getPrStatus(pr);
   const content = `PR opened: [${linkDescription}](${prUrl})
 
 Last change: ${new Date().toISOString().replace("T", " ").slice(0, -8)} GMT
