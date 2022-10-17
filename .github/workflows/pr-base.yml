@@ -27,7 +27,7 @@ jobs:
           ref: ${{ inputs.workflows-ref }}
           path: workflows
           repository: ftrackhq/ftrack-actions
-          token: ${{ secrets.token }}
+          token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
       - name: ftrack Sync
         uses: ./workflows/actions/ftrack-sync
         with:
