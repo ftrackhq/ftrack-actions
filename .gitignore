@@ -106,7 +106,6 @@ dist
 .secrets
 
 # Yarn
-.pnp.*
 .yarn/*
 !.yarn/cache
 !.yarn/patches
