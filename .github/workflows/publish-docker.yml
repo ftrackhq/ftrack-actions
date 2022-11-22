@@ -26,6 +26,10 @@ on:
         type: string
         description: "Image prefix when uploading to GitHub Registry"
         required: true
+      dockerFile:
+        type: string
+        description: Path to the Dockerfile. (default ./Dockerfile)
+        required: false
       imageName:
         type: string
         description: "Name of Docker image"
@@ -79,6 +83,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
+          file: ${{ inputs.dockerFile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
