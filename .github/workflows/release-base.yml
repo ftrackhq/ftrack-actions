@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+  workflow_call:
+    inputs:
+      packageName:
+        description: 'Name of the package'
+        required: true
+        type: string
+    secrets:
+      slackReleaseWebhookUrl:
+        description: "Slack token"
+        required: true
+
+jobs:
+  slack:
+    name: Announce the release on Slack
+    runs-on: ubuntu-latest
+    steps:
+      # To check the github context
+      - name: Dump Github context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - uses: LoveToKnow/slackify-markdown-action@v1.0.0
+        id: markdown
+        with:
+          text: "${{ github.event.release.body }}"
+      - name: Slack Notification on SUCCESS
+        if: success()
+        uses: tokorom/action-slack-incoming-webhook@main
+        env:
+          INCOMING_WEBHOOK_URL: ${{ secrets.slackReleaseWebhookUrl || secrets.SLACK_RELEASE_WEBHOOK_URL }}
+        with:
+          text: A new stable release is being prepared!
+          blocks: |
+            [
+              {
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": "🚀 ${{ inputs.packageName}} ${{ github.event.release.tag_name}} is being prepared for release!"
+                }
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ${{ toJSON(steps.markdown.outputs.text) }}
+                }
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "${{ github.event.release.html_url }}"
+                }
+              }
+            ]
