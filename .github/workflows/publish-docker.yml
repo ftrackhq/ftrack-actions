@@ -31,6 +31,11 @@ on:
         description: Path to the Dockerfile. (default ./Dockerfile)
         required: false
         default: ./Dockerfile
+      context:
+        type: string
+        description: Path to context
+        required: false
+        default: .
       lint:
         type: boolean
         description: "Set to true to lint Dockerfile as part of build"
@@ -96,7 +101,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          context: .
+          context: ${{ inputs.context }}
           file: ${{ inputs.dockerFile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
