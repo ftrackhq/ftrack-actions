@@ -33,9 +33,6 @@ jobs:
   publish-npm:
     name: "Publish to NPM"
     runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: ${{ inputs.packageUrl }}
     env:
       GITHUB_TOKEN: ${{ secrets.token || secrets.GITHUB_TOKEN }}
 
