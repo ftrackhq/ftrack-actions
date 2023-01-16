@@ -45,6 +45,11 @@ on:
         type: string
         description: "Name of Docker image"
         required: true
+      target:
+        type: string
+        description: "Sets the target stage to build"
+        required: false
+        default: false
 
 jobs:
   build-and-push-image:
@@ -108,3 +113,4 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          target: ${{ inputs.target }}
