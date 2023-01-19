@@ -49,7 +49,7 @@ on:
         type: string
         description: "Sets the target stage to build"
         required: false
-        default: false
+        default: ""
 
 jobs:
   build-and-push-image:
