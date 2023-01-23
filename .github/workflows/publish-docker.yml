@@ -50,6 +50,11 @@ on:
         description: "Sets the target stage to build"
         required: false
         default: ""
+      provenance:
+        type: string
+        description: Generate provenance attestation for the build (shorthand for --attest=type=provenance). Currently not working with gcr
+        required: false
+        default: false
 
 jobs:
   build-and-push-image:
@@ -114,3 +119,4 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: ${{ inputs.target }}
+          provenance: ${{inputs.provenance }}
