@@ -9,6 +9,10 @@ on:
       gcrJsonKey:
         description: "JSON key for GCR authentication"
         required: true
+      dockerSecrets:
+        type: string
+        required: false
+        default: ""
     inputs:
       gcrRegistry:
         type: string
@@ -55,10 +59,6 @@ on:
         description: Generate provenance attestation for the build (shorthand for --attest=type=provenance). Currently not working with gcr
         required: false
         default: false
-      build-args:
-        type: string
-        required: false
-        default: ""
 
 jobs:
   build-and-push-image:
@@ -117,7 +117,6 @@ jobs:
         with:
           context: ${{ inputs.context }}
           file: ${{ inputs.dockerFile }}
-          build-args: ${{ inputs.build-args }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -125,3 +124,4 @@ jobs:
           cache-to: type=gha,mode=max
           target: ${{ inputs.target }}
           provenance: ${{ inputs.provenance }}
+          secrets: ${{ secrets.dockerSecrets }}
