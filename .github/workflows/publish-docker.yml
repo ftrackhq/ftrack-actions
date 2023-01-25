@@ -10,9 +10,8 @@ on:
         description: "JSON key for GCR authentication"
         required: true
       dockerSecrets:
-        type: string
+        description: "Docker build push action"
         required: false
-        default: ""
     inputs:
       gcrRegistry:
         type: string
