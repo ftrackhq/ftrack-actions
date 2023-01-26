@@ -58,7 +58,7 @@ on:
         description: Generate provenance attestation for the build (shorthand for --attest=type=provenance). Currently not working with gcr
         required: false
         default: false
-      build-args:
+      dockerBuildArgs:
         type: string
         required: false
         default: ""
@@ -120,7 +120,7 @@ jobs:
         with:
           context: ${{ inputs.context }}
           file: ${{ inputs.dockerFile }}
-          build-args: ${{ inputs.build-args }}
+          build-args: ${{ inputs.dockerBuildArgs }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
