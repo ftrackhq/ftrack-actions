@@ -33,7 +33,7 @@ jobs:
         uses: ./workflows/actions/ftrack-sync
         with:
           ftrackUrl: https://dev.ftrackapp.com
-          ftrackLoginEmail: "github_bot@ftrack.com"
+          ftrackLoginEmail: "github_bot@backlight.co"
           ftrackUserId: "76a40852-359d-11ed-8012-aab5768efa1e"
           ftrackApiKey: ${{ secrets.ftrackApiKey || secrets.FTRACK_API_KEY }}
       - name: Check PR Title
