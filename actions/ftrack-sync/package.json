@@ -8,24 +8,22 @@
   "scripts": {
     "sync-pr-status": "yarn tsx sync_pr_status.ts",
     "check-tasks": "yarn tsx check_tasks.ts",
-    "pr-base": "yarn sync-pr-status && yarn check-tasks"
+    "check-pr": "yarn sync-pr-status && yarn check-tasks",
+    "release-notes": "yarn tsx generate_release_notes.ts"
   },
   "dependencies": {
-    "@ftrack/api": "1.5.0-beta.1",
+    "@ftrack/api": "1.7.0",
     "node-html-parser": "^6.1.5",
     "remeda": "^1.23.0",
     "tsx": "^3.12.7",
-    "typescript": "^5.1.6",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.4.0",
     "@types/uuid": "^9.0.2",
     "cross-fetch": "^4.0.0",
     "msw": "1.0.1",
-    "type-fest": "^3.12.0",
+    "typescript": "^5.1.6",
     "vite": "^4.4.2",
-    "vitest": "^0.33.0",
-    "ws": "^8.13.0"
+    "vitest": "^0.33.0"
   }
 }

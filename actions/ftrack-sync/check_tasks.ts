@@ -39,7 +39,6 @@ FTRACK_API_KEY="[dev api key]" PR_JSON='{"url":"https://github.com/ftrackhq/fron
   }
 
   const pullRequest = getPullRequest();
-  console.log("Input:", pullRequest);
 
   await assertTasksHaveProductFieldSet(pullRequest);
 }

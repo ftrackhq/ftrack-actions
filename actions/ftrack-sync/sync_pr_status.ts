@@ -27,11 +27,11 @@ function getTaskIdsAndNoteIdsFromBody(body: string, prUrl: string) {
 }
 
 async function groupIntoExistingAndNewNoteIds(
-  noteIds: { noteId: string; taskId: string }[]
+  noteIds: { noteId: string; taskId: string }[],
 ) {
   const response = await getNotesFromIds(noteIds.map(({ noteId }) => noteId));
   try {
-    const existingIds = response.data.map((note: any) => ({
+    const existingIds = response.data.map((note) => ({
       noteId: note.id,
       taskId: note.parent_id,
     }));
@@ -39,7 +39,7 @@ async function groupIntoExistingAndNewNoteIds(
       ({ noteId }) =>
         !existingIds
           .map(({ noteId }: { noteId: string }) => noteId)
-          .includes(noteId)
+          .includes(noteId),
     );
     return { existingIds, newIds };
   } catch (error) {
@@ -49,13 +49,13 @@ async function groupIntoExistingAndNewNoteIds(
 }
 
 function getPrStatus(pr: PullRequest) {
-  if (!!pr.merged_at) {
+  if (pr.merged_at) {
     return "merged";
   }
   if (pr.draft) {
     return "draft";
   }
-  if (!!pr.state) {
+  if (pr.state) {
     return pr.state;
   }
   return "unknown";
@@ -64,7 +64,7 @@ function getPrStatus(pr: PullRequest) {
 function getNoteRequestBody(
   action: Action,
   pr: PullRequest,
-  { noteId, taskId }: { noteId: string; taskId: string | null }
+  { noteId, taskId }: { noteId: string; taskId: string | null },
 ): NoteRequestBody {
   const prUrl = pr.html_url;
   const linkDescription = prUrl!.match(/\.com\/(.+)/)?.[1];
@@ -92,7 +92,7 @@ Current status: ${prStatus}`;
 }
 
 export async function getNotesRequestBody(
-  PR: PullRequest
+  PR: PullRequest,
 ): Promise<NoteRequestBody[]> {
   if (!PR.body || !PR.html_url) return [];
   const taskIds = getTaskIdsAndNoteIdsFromBody(PR.body, PR.html_url);
@@ -107,7 +107,7 @@ export async function getNotesRequestBody(
 async function main() {
   if (!process.env.FTRACK_API_KEY || !process.env.PR_JSON) {
     console.error(`This script is intended to be run in CI only. To run locally for development, use:
-FTRACK_API_KEY="[dev api key]" PR_JSON='{"url":"https://github.com/ftrackhq/frontend/pull/120","body":"Resolves FTRACK-c018c026-3599-11ed-8012-aab5768efa1e"}' yarn pr-status
+FTRACK_API_KEY="[dev api key]" PR_JSON='{"url":"https://github.com/ftrackhq/frontend/pull/120","body":"Resolves FTRACK-c018c026-3599-11ed-8012-aab5768efa1e"}' yarn sync-pr-status
 `);
     process.exit(1);
   }
