@@ -19,14 +19,14 @@ branding:
 runs:
   using: "composite"
   steps:
-    - uses: 8BitJonny/gh-get-current-pr@2.1.1
+    - uses: 8BitJonny/gh-get-current-pr@2.2.0
       id: PR
       with:
         sha: ${{ github.event.pull_request.head.sha }}
     - name: Set up Node
       uses: actions/setup-node@v3
       with:
-        node-version: 18
+        node-version: 19.9.0
     - name: yarn start
       shell: bash
       run: |
