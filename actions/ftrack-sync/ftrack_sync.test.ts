@@ -7,7 +7,7 @@ import {
   afterEach,
   vi,
 } from "vitest";
-import { getNotesRequestBody } from "./ftrackSync";
+import { getNotesRequestBody } from "./ftrack_sync.js";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
 import fetch from "cross-fetch";
@@ -43,6 +43,9 @@ describe("ftrack sync", () => {
       await getNotesRequestBody({
         body: null,
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
+        draft: false,
+        merged_at: "",
+        state: "",
       })
     ).toEqual([]);
 
@@ -50,6 +53,9 @@ describe("ftrack sync", () => {
       await getNotesRequestBody({
         body: "hello world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
+        draft: false,
+        merged_at: "",
+        state: "",
       })
     ).toEqual([]);
 
@@ -57,6 +63,9 @@ describe("ftrack sync", () => {
       await getNotesRequestBody({
         body: "hello FT- world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
+        draft: false,
+        merged_at: "",
+        state: "",
       })
     ).toEqual([]);
   });
@@ -84,6 +93,9 @@ describe("ftrack sync", () => {
       await getNotesRequestBody({
         body: "hello FT-1234 world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
+        draft: false,
+        merged_at: "",
+        state: "",
       })
     ).toEqual([
       {
@@ -122,6 +134,9 @@ describe("ftrack sync", () => {
       await getNotesRequestBody({
         body: "hello FT-1234 world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
+        draft: false,
+        merged_at: "",
+        state: "",
       })
     ).toEqual([
       {
@@ -167,6 +182,9 @@ describe("ftrack sync", () => {
       await getNotesRequestBody({
         body: "hello FT-1234 FT-5678 world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
+        draft: false,
+        merged_at: "",
+        state: "",
       })
     ).toEqual([
       {
@@ -226,6 +244,8 @@ describe("ftrack sync", () => {
       await getNotesRequestBody({
         body: "hello FT-1234 world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
+        merged_at: "",
+        state: "",
         draft: true,
       })
     ).toEqual([
@@ -271,6 +291,8 @@ describe("ftrack sync", () => {
         body: "hello FT-1234 world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
         merged_at: "2022-10-17T07:58:36Z",
+        draft: false,
+        state: "",
       })
     ).toEqual([
       {
@@ -315,6 +337,8 @@ describe("ftrack sync", () => {
         body: "hello FT-1234 world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
         state: "open",
+        draft: false,
+        merged_at: "",
       })
     ).toEqual([
       {

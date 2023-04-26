@@ -4,6 +4,6 @@ process.env.TZ = "UTC";
 
 export default defineConfig({
   test: {
-    include: ["actions/**/*.test.js"],
+    include: ["actions/**/*.test.{js,ts}"],
   },
 });

@@ -3,17 +3,21 @@ import { v5 as uuid } from "uuid";
 const UUID_NAMESPACE = "1b671a64-40d5-491e-99b0-da01ff1f3341";
 
 export const requestHeaders = {
-  "ftrack-api-key": process.env.FTRACK_API_KEY,
+  "ftrack-api-key": process.env.FTRACK_API_KEY as string,
   "Content-Type": "application/json",
   "Response-Type": "application/json",
-  "ftrack-user": process.env.FTRACK_LOGIN_EMAIL,
+  "ftrack-user": process.env.FTRACK_LOGIN_EMAIL as string,
   "ftrack-bulk": "true",
 };
 
-function getTaskIdsAndNoteIdsFromBody(body, prUrl) {
-  const taskIds = Array.from(body.matchAll(/(FTRACK|FT)-([\w\d-]+)/g)).map(
-    (match) => match[2]
-  );
+export function getTaskIdsFromBody(body: string) {
+  return Array.from(body.matchAll(/(FTRACK|FT)-([\w\d-]+)/g))
+    .map((match) => match[2])
+    .flat();
+}
+
+function getTaskIdsAndNoteIdsFromBody(body: string, prUrl: string) {
+  const taskIds = getTaskIdsFromBody(body);
   // generate a unique id for each note based on PR.html_url and taskId
   const uuids = taskIds.map((taskId) => ({
     noteId: uuid(prUrl + taskId, UUID_NAMESPACE),
@@ -23,7 +27,9 @@ function getTaskIdsAndNoteIdsFromBody(body, prUrl) {
   return uuids;
 }
 
-async function groupIntoExistingAndNewNoteIds(noteIds) {
+async function groupIntoExistingAndNewNoteIds(
+  noteIds: { noteId: string; taskId: string }[]
+) {
   const response = await (
     await fetch(process.env.FTRACK_URL + "/api", {
       method: "POST",
@@ -39,14 +45,14 @@ async function groupIntoExistingAndNewNoteIds(noteIds) {
     })
   ).json();
   try {
-    const existingIds = response[0].data.map((note) => ({
+    const existingIds = response[0].data.map((note: any) => ({
       noteId: note.id,
       taskId: note.parent_id,
     }));
     const newIds = noteIds.filter(
       ({ noteId }) =>
         !existingIds
-          .map(({ noteId: existingNoteId }) => existingNoteId)
+          .map(({ noteId }: { noteId: string }) => noteId)
           .includes(noteId)
     );
     return { existingIds, newIds };
@@ -56,7 +62,7 @@ async function groupIntoExistingAndNewNoteIds(noteIds) {
   }
 }
 
-function getPrStatus(pr) {
+function getPrStatus(pr: PullRequest) {
   if (!!pr.merged_at) {
     return "merged";
   }
@@ -69,9 +75,36 @@ function getPrStatus(pr) {
   return "unknown";
 }
 
-function getNoteRequestBody(action, pr, { noteId, taskId }) {
+type Action = "create" | "update";
+
+interface PullRequest {
+  body: string | null;
+  html_url: string;
+  draft: boolean;
+  merged_at: string;
+  state: string;
+}
+
+interface NoteRequestBody {
+  action: Action;
+  entity_key: string;
+  entity_type: "Note";
+  entity_data: {
+    id: string;
+    parent_id: string | null;
+    content: string;
+    parent_type: "TypedContext";
+    user_id: string;
+  };
+}
+
+function getNoteRequestBody(
+  action: Action,
+  pr: PullRequest,
+  { noteId, taskId }: { noteId: string; taskId: string | null }
+): NoteRequestBody {
   const prUrl = pr.html_url;
-  const linkDescription = prUrl.match(/\.com\/(.+)/)[1];
+  const linkDescription = prUrl.match(/\.com\/(.+)/)?.[1];
   const prStatus = getPrStatus(pr);
   const content = `PR opened: [${linkDescription}](${prUrl})
 
@@ -90,18 +123,20 @@ Current status: ${prStatus}`;
       parent_id: taskId,
       content,
       parent_type: "TypedContext",
-      user_id: process.env.FTRACK_USER_ID,
+      user_id: process.env.FTRACK_USER_ID as string,
     },
   };
 }
 
-export async function getNotesRequestBody(PR) {
+export async function getNotesRequestBody(
+  PR: PullRequest
+): Promise<NoteRequestBody[]> {
   if (!PR.body || !PR.html_url) return [];
   const taskIds = getTaskIdsAndNoteIdsFromBody(PR.body, PR.html_url);
   if (taskIds.length === 0) return [];
   const { existingIds, newIds } = await groupIntoExistingAndNewNoteIds(taskIds);
   return [
-    ...newIds.map(getNoteRequestBody.bind(this, "create", PR)),
-    ...existingIds.map(getNoteRequestBody.bind(this, "update", PR)),
+    ...newIds.map(getNoteRequestBody.bind(null, "create", PR)),
+    ...existingIds.map(getNoteRequestBody.bind(null, "update", PR)),
   ];
 }

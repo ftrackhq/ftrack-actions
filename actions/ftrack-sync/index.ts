@@ -1,4 +1,4 @@
-import { getNotesRequestBody, requestHeaders } from "./ftrackSync.js";
+import { getNotesRequestBody, requestHeaders } from "./ftrack_sync.js";
 
 if (!process.env.FTRACK_API_KEY || !process.env.PR_JSON) {
   console.error(`This script is intended to be run in CI only. To run locally for development, use:
