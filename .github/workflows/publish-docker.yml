@@ -57,11 +57,16 @@ on:
         type: string
         description: Generate provenance attestation for the build (shorthand for --attest=type=provenance). Currently not working with gcr
         required: false
-        default: false
+        default: ""
       dockerBuildArgs:
         type: string
         required: false
         default: ""
+      additionalImages:
+        type: string
+        required: false
+        default: ""
+
 
 jobs:
   build-and-push-image:
@@ -117,6 +122,7 @@ jobs:
           images: |
             ${{ inputs.gcrRegistry }}/${{ inputs.gcrNamespace }}/${{ inputs.imageName }}
             ${{ inputs.ghcrRegistry }}/${{ inputs.ghcrNamespace }}/${{ inputs.imageName }}
+            ${{ inputs.additionalImages }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
