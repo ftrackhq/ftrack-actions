@@ -34,6 +34,9 @@ inputs:
     description: ""
     required: false
     default: ""
+  dockerSecrets:
+    description: "Docker build push action"
+    required: false
 
 runs:
   using: composite
@@ -77,4 +80,4 @@ runs:
         cache-to: type=gha,mode=max
         target: ${{ inputs.target }}
         provenance: ${{ inputs.provenance }}
-        secrets: ${{ secrets.dockerSecrets }}
+        secrets: ${{ inputs.dockerSecrets }}
