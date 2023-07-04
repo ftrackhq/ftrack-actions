@@ -1,0 +1,83 @@
+name: Publish Docker
+description: Action for building and publishing docker images
+inputs:
+  token:
+    description: "The GitHub token"
+    required: true
+  dockerFile:
+    description: Path to the Dockerfile. (default ./Dockerfile)
+    required: false
+    default: ./Dockerfile
+  context:
+    description: Path to context
+    required: false
+    default: .
+  lint:
+    description: "Set to true to lint Dockerfile as part of build"
+    required: false
+  imageName:
+    description: "Name of Docker image"
+    required: true
+  target:
+    description: "Sets the target stage to build"
+    required: false
+    default: ""
+  provenance:
+    description: Generate provenance attestation for the build (shorthand for --attest=type=provenance). Currently not working with gcr
+    required: false
+    default: ""
+  dockerBuildArgs:
+    description: ""
+    required: false
+    default: ""
+  images:
+    description: ""
+    required: false
+    default: ""
+  dockerSecrets:
+    description: "Docker build push action"
+    required: false
+
+runs:
+  using: composite
+  steps:
+    # Required for image layer cache
+    - uses: docker/setup-buildx-action@v2
+
+    - name: Lint Dockerfile
+      if: ${{ inputs.lint }}
+      uses: hadolint/hadolint-action@v3.0.0
+      with:
+        dockerfile: ${{ inputs.dockerFile }}
+        failure-threshold: "warning"
+        verbose: true
+
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v4
+      env:
+        DOCKER_METADATA_PR_HEAD_SHA: "true"
+      with:
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+        images: ${{ inputs.images }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v3
+      with:
+        context: ${{ inputs.context }}
+        file: ${{ inputs.dockerFile }}
+        build-args: ${{ inputs.dockerBuildArgs }}
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        target: ${{ inputs.target }}
+        provenance: ${{ inputs.provenance }}
+        secrets: ${{ inputs.dockerSecrets }}
