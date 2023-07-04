@@ -114,6 +114,7 @@ jobs:
           target: ${{ inputs.target }}
           provenance: ${{ inputs.provenance }}
           dockerBuildArgs: ${{ inputs.dockerBuildArgs }}
+          dockerSecrets: ${{ secrets.dockerSecrets }}
           images: |
             ${{ inputs.gcrRegistry }}/${{ inputs.gcrNamespace }}/${{ inputs.imageName }}
             ${{ inputs.ghcrRegistry }}/${{ inputs.ghcrNamespace }}/${{ inputs.imageName }}
