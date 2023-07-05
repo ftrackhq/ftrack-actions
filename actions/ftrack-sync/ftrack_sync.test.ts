@@ -25,7 +25,7 @@ beforeAll(() => {
   server.listen({
     onUnhandledRequest(req) {
       throw new Error(
-        `Found an unhandled ${req.method} request to ${req.url.href}`
+        `Found an unhandled ${req.method} request to ${req.url.href}`,
       );
     },
   });
@@ -46,7 +46,7 @@ describe("ftrack sync", () => {
         draft: false,
         merged_at: "",
         state: "",
-      })
+      }),
     ).toEqual([]);
 
     expect(
@@ -56,7 +56,7 @@ describe("ftrack sync", () => {
         draft: false,
         merged_at: "",
         state: "",
-      })
+      }),
     ).toEqual([]);
 
     expect(
@@ -66,7 +66,7 @@ describe("ftrack sync", () => {
         draft: false,
         merged_at: "",
         state: "",
-      })
+      }),
     ).toEqual([]);
   });
 
@@ -85,9 +85,9 @@ describe("ftrack sync", () => {
                 },
               ],
             },
-          ])
+          ]),
         );
-      })
+      }),
     );
     expect(
       await getNotesRequestBody({
@@ -96,7 +96,7 @@ describe("ftrack sync", () => {
         draft: false,
         merged_at: "",
         state: "",
-      })
+      }),
     ).toEqual([
       {
         action: "update",
@@ -126,9 +126,9 @@ describe("ftrack sync", () => {
               action: "query",
               data: [],
             },
-          ])
+          ]),
         );
-      })
+      }),
     );
     expect(
       await getNotesRequestBody({
@@ -137,7 +137,7 @@ describe("ftrack sync", () => {
         draft: false,
         merged_at: "",
         state: "",
-      })
+      }),
     ).toEqual([
       {
         action: "create",
@@ -173,9 +173,9 @@ describe("ftrack sync", () => {
                 },
               ],
             },
-          ])
+          ]),
         );
-      })
+      }),
     );
 
     expect(
@@ -185,7 +185,7 @@ describe("ftrack sync", () => {
         draft: false,
         merged_at: "",
         state: "",
-      })
+      }),
     ).toEqual([
       {
         action: "create",
@@ -236,9 +236,9 @@ describe("ftrack sync", () => {
                 },
               ],
             },
-          ])
+          ]),
         );
-      })
+      }),
     );
     expect(
       await getNotesRequestBody({
@@ -247,7 +247,7 @@ describe("ftrack sync", () => {
         merged_at: "",
         state: "",
         draft: true,
-      })
+      }),
     ).toEqual([
       {
         action: "update",
@@ -282,9 +282,9 @@ describe("ftrack sync", () => {
                 },
               ],
             },
-          ])
+          ]),
         );
-      })
+      }),
     );
     expect(
       await getNotesRequestBody({
@@ -293,7 +293,7 @@ describe("ftrack sync", () => {
         merged_at: "2022-10-17T07:58:36Z",
         draft: false,
         state: "",
-      })
+      }),
     ).toEqual([
       {
         action: "update",
@@ -328,9 +328,9 @@ describe("ftrack sync", () => {
                 },
               ],
             },
-          ])
+          ]),
         );
-      })
+      }),
     );
     expect(
       await getNotesRequestBody({
@@ -339,7 +339,7 @@ describe("ftrack sync", () => {
         state: "open",
         draft: false,
         merged_at: "",
-      })
+      }),
     ).toEqual([
       {
         action: "update",

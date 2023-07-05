@@ -28,7 +28,7 @@ function getTaskIdsAndNoteIdsFromBody(body: string, prUrl: string) {
 }
 
 async function groupIntoExistingAndNewNoteIds(
-  noteIds: { noteId: string; taskId: string }[]
+  noteIds: { noteId: string; taskId: string }[],
 ) {
   const response = await (
     await fetch(process.env.FTRACK_URL + "/api", {
@@ -53,7 +53,7 @@ async function groupIntoExistingAndNewNoteIds(
       ({ noteId }) =>
         !existingIds
           .map(({ noteId }: { noteId: string }) => noteId)
-          .includes(noteId)
+          .includes(noteId),
     );
     return { existingIds, newIds };
   } catch (error) {
@@ -101,7 +101,7 @@ interface NoteRequestBody {
 function getNoteRequestBody(
   action: Action,
   pr: PullRequest,
-  { noteId, taskId }: { noteId: string; taskId: string | null }
+  { noteId, taskId }: { noteId: string; taskId: string | null },
 ): NoteRequestBody {
   const prUrl = pr.html_url;
   const linkDescription = prUrl.match(/\.com\/(.+)/)?.[1];
@@ -129,7 +129,7 @@ Current status: ${prStatus}`;
 }
 
 export async function getNotesRequestBody(
-  PR: PullRequest
+  PR: PullRequest,
 ): Promise<NoteRequestBody[]> {
   if (!PR.body || !PR.html_url) return [];
   const taskIds = getTaskIdsAndNoteIdsFromBody(PR.body, PR.html_url);

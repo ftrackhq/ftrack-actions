@@ -8,7 +8,7 @@ on:
   workflow_call:
     inputs:
       packageName:
-        description: 'Name of the package'
+        description: "Name of the package"
         required: true
         type: string
     secrets:
