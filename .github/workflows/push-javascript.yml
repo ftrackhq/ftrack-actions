@@ -16,7 +16,7 @@ jobs:
       - name: Using Node.js from .nvmrc
         uses: actions/setup-node@v3
         with:
-          node-version: 19.9.0
+          node-version: 20.4.0
 
       # caching with actions/setup-node isn't supported with yarn 3
       # so we use this workaround https://github.com/actions/setup-node/issues/488

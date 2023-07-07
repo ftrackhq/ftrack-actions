@@ -26,12 +26,13 @@ runs:
     - name: Set up Node
       uses: actions/setup-node@v3
       with:
-        node-version: 19.9.0
-    - name: yarn start
+        node-version: 20.4.0
+    - name: yarn pr-base
       shell: bash
       run: |
         cd ${{ github.action_path }}
-        yarn start
+        yarn install --immutable
+        yarn pr-base
       env:
         FTRACK_API_KEY: ${{ inputs.ftrackApiKey }}
         FTRACK_URL: ${{ inputs.ftrackUrl }}
