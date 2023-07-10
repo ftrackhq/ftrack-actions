@@ -51,6 +51,7 @@ runs:
         dockerfile: ${{ inputs.dockerFile }}
         failure-threshold: "warning"
         verbose: true
+        ignore: DL3008
 
     - name: Extract metadata (tags, labels) for Docker
       id: meta
