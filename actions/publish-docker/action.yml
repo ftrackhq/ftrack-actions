@@ -46,7 +46,7 @@ runs:
 
     - name: Lint Dockerfile
       if: ${{ inputs.lint == 'true' }}
-      uses: hadolint/hadolint-action@v3.0.0
+      uses: hadolint/hadolint-action@v3.1.0
       with:
         dockerfile: ${{ inputs.dockerFile }}
         failure-threshold: "warning"
