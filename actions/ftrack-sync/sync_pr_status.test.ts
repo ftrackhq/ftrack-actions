@@ -1,41 +1,13 @@
-import {
-  describe,
-  it,
-  expect,
-  beforeAll,
-  afterAll,
-  afterEach,
-  vi,
-} from "vitest";
-import { getNotesRequestBody } from "./ftrack_sync.js";
-import { setupServer } from "msw/node";
+import { describe, it, expect, beforeAll, vi } from "vitest";
+import { getNotesRequestBody } from "./sync_pr_status.js";
+import { server } from "../../test_server.js";
 import { rest } from "msw";
-import fetch from "cross-fetch";
-
-global.fetch = fetch;
-
-const server = setupServer();
 
 // Start server before all tests
 beforeAll(() => {
-  process.env.FTRACK_URL = "http://ftrackinstance.example";
-  process.env.FTRACK_USER_ID = "user-id";
   vi.useFakeTimers();
   vi.setSystemTime(new Date(2022, 0, 1, 0, 0, 0));
-  server.listen({
-    onUnhandledRequest(req) {
-      throw new Error(
-        `Found an unhandled ${req.method} request to ${req.url.href}`,
-      );
-    },
-  });
 });
-
-//  Close server after all tests
-afterAll(() => server.close());
-
-// Reset handlers after each test `important for test isolation`
-afterEach(() => server.resetHandlers());
 
 describe("ftrack sync", () => {
   it("shouldn't do anything if not finding a FT-xxxxx in the PR body", async () => {
@@ -313,7 +285,7 @@ describe("ftrack sync", () => {
       },
     ]);
   });
-  it("show give correct status for open PRs", async () => {
+  it("should give correct status for open PRs", async () => {
     server.use(
       rest.post(process.env.FTRACK_URL + "/api", (req, res, ctx) => {
         return res(
@@ -358,5 +330,26 @@ describe("ftrack sync", () => {
         },
       },
     ]);
+  });
+
+  it("should make sure that each task has products or internal set", async () => {
+    server.use(
+      rest.post(process.env.FTRACK_URL + "/api", (req, res, ctx) => {
+        return res(
+          ctx.json([
+            {
+              action: "query",
+              data: [
+                {
+                  parent_id: "1234",
+                  id: "a2cd73b2-6981-584a-97ec-05b3698740d8",
+                  __entity_type__: "Note",
+                },
+              ],
+            },
+          ]),
+        );
+      }),
+    );
   });
 });

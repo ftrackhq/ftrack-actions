@@ -6,19 +6,26 @@
   "license": "Apache 2.0",
   "private": true,
   "scripts": {
-    "start": "yarn pnpify ts-node index.ts"
+    "sync-pr-status": "yarn tsx sync_pr_status.ts",
+    "check-tasks": "yarn tsx check_tasks.ts",
+    "pr-base": "yarn sync-pr-status && yarn check-tasks"
+  },
+  "dependencies": {
+    "@ftrack/api": "1.5.0-beta.1",
+    "node-html-parser": "^6.1.5",
+    "remeda": "^1.23.0",
+    "tsx": "^3.12.7",
+    "typescript": "^5.1.6",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/node": "^18.16.1",
-    "@types/uuid": "^9.0.1",
-    "@yarnpkg/pnpify": "^4.0.0-rc.42",
-    "cross-fetch": "^3.1.5",
+    "@types/node": "^20.4.0",
+    "@types/uuid": "^9.0.2",
+    "cross-fetch": "^4.0.0",
     "msw": "1.0.1",
-    "ts-node": "^10.9.1",
-    "type-fest": "^3.9.0",
-    "typescript": "^5.0.4",
-    "uuid": "^9.0.0",
-    "vite": "^4.3.3",
-    "vitest": "^0.30.1"
+    "type-fest": "^3.12.0",
+    "vite": "^4.4.2",
+    "vitest": "^0.33.0",
+    "ws": "^8.13.0"
   }
 }
