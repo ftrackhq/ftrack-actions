@@ -66,7 +66,6 @@ export async function getNotesFromIds(noteIds: string[]) {
 }
 
 export async function createNotes(notes: NoteRequestBody[]) {
-  return await Promise.all(
-    notes.map((note) => getSession().create("Note", note)),
-  );
+  console.log("Creating notes", JSON.stringify(notes));
+  return await getSession().call(notes);
 }
