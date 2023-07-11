@@ -1,10 +1,9 @@
-import { beforeAll, afterAll, afterEach } from "vitest";
+import { beforeAll, afterAll, afterEach, beforeEach } from "vitest";
 import fetch from "cross-fetch";
 import { rest } from "msw";
+import { server } from "./test_server.js";
 
 global.fetch = fetch;
-
-import { server } from "./test_server.js";
 
 // Start server before all tests
 beforeAll(() => {
@@ -15,10 +14,13 @@ beforeAll(() => {
   server.listen({
     onUnhandledRequest(req) {
       throw new Error(
-        `Found an unhandled ${req.method} request to ${req.url.href}`
+        `Found an unhandled ${req.method} request to ${req.url.href}`,
       );
     },
   });
+});
+
+beforeEach(() => {
   server.use(
     rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
       const requestBody = await req.json();
@@ -26,7 +28,7 @@ beforeAll(() => {
       if (requestBody.length > 1) {
         return res(ctx.json([{}, []]));
       }
-    })
+    }),
   );
 });
 

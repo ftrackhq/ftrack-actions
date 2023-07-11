@@ -8,7 +8,7 @@ function getSession() {
       process.env.FTRACK_URL!,
       process.env.FTRACK_LOGIN_EMAIL!,
       process.env.FTRACK_API_KEY!,
-      { additionalHeaders: { "ftrack-bulk": true } }
+      { additionalHeaders: { "ftrack-bulk": true } },
     );
   }
   return _session;
@@ -54,18 +54,19 @@ export interface NoteRequestBody {
 export async function getTaskFromId(taskId: string): Promise<Task> {
   return (
     await getSession().query<Task>(
-      `select id, name, custom_attributes.key, custom_attributes.value, type.name, link from Task where id is ${taskId}`
+      `select id, name, custom_attributes.key, custom_attributes.value, type.name, link from Task where id is ${taskId}`,
     )
   ).data[0];
 }
 
 export async function getNotesFromIds(noteIds: string[]) {
   return await getSession().query<Note>(
-    `select id, parent_id from Note where id in (${noteIds.join(",")})`
+    `select id, parent_id from Note where id in (${noteIds.join(",")})`,
   );
 }
 
 export async function createNotes(notes: NoteRequestBody[]) {
-  console.log("Creating notes", JSON.stringify(notes));
-  return await getSession().call(notes);
+  return await Promise.all(
+    notes.map((note) => getSession().create("Note", note)),
+  );
 }

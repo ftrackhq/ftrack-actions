@@ -18,25 +18,32 @@ on:
 
 jobs:
   check-pr:
-    name: Basic PR Checks & Sync
+    name: Check PR & Sync
     runs-on: ubuntu-latest
     steps:
+      - name: "Dump GitHub context"
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
       # required so we can reference the actions locally
       - name: Checkout workflows repo
         uses: actions/checkout@v3
         with:
-          ref: ${{ inputs.workflows-ref }}
+          # you can set this to your branch when modifying actions and want too assert that it works
+          # ref: backlog/generate-release-notes-automatically-from-fields-in-ftrack
           path: workflows
           repository: ftrackhq/ftrack-actions
+          token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+      - name: Check PR Title
+        uses: ./workflows/actions/check-pr-title
+        with:
           token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
       - name: ftrack Sync
         uses: ./workflows/actions/ftrack-sync
         with:
+          action: "check-pr"
           ftrackUrl: https://dev.ftrackapp.com
           ftrackLoginEmail: "github_bot@backlight.co"
           ftrackUserId: "76a40852-359d-11ed-8012-aab5768efa1e"
           ftrackApiKey: ${{ secrets.ftrackApiKey || secrets.FTRACK_API_KEY }}
-      - name: Check PR Title
-        uses: ./workflows/actions/check-pr-title
-        with:
           token: ${{ secrets.token || secrets.GITHUB_TOKEN }}

@@ -1,13 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { assertTasksHaveProductFieldSet } from "./check_tasks.js";
 
-import { rest } from "msw";
 import { server } from "../../test_server.js";
+import { rest } from "msw";
 
 describe("ftrack sync", () => {
   it("Should fail if a task does not have a product, or internal_change set", () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", (req, res, ctx) => {
+      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
+        // Ignoring session initalization request with query_schemas etc
+        if ((await req.json()).length > 1) return;
         return res(
           ctx.json([
             {
@@ -41,7 +43,9 @@ describe("ftrack sync", () => {
 
   it("Should pass if a task does have a product", () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", (req, res, ctx) => {
+      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
+        // Ignoring session initalization request with query_schemas etc
+        if ((await req.json()).length > 1) return;
         return res(
           ctx.json([
             {
@@ -73,7 +77,9 @@ describe("ftrack sync", () => {
 
   it("Should pass if a task has internal set", () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", (req, res, ctx) => {
+      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
+        // Ignoring session initalization request with query_schemas etc
+        if ((await req.json()).length > 1) return;
         return res(
           ctx.json([
             {
