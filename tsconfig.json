@@ -16,8 +16,5 @@
     "target": "ESNext",
     "useDefineForClassFields": true
   },
-  "ts-node": {
-    "esm": true
-  },
   "exclude": ["node_modules", ".yarn"]
 }

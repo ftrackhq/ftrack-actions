@@ -7,7 +7,7 @@
     "actions/*"
   ],
   "scripts": {
-    "test": "vitest --run",
+    "test": "yarn lint && vitest --run",
     "lint": "eslint . && prettier -c ."
   },
   "repository": {
@@ -21,14 +21,12 @@
     "*.{js,css,md,json,jsx,scss,yml}": "prettier --write"
   },
   "devDependencies": {
-    "@types/node": "^20.4.0",
-    "@typescript-eslint/eslint-plugin": "^5.59.1",
-    "cross-fetch": "^3.1.5",
-    "eslint": "^8.39.0",
-    "eslint-config-react-app": "^7.0.1",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "cross-fetch": "^4.0.0",
+    "eslint": "^8.44.0",
     "msw": "1.0.1",
     "prettier": "^3.0.0",
-    "ts-node": "^10.9.1",
     "typescript": "^5.1.6",
     "vite": "^4.4.2",
     "vitest": "^0.33.0"

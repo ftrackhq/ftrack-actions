@@ -44,7 +44,9 @@ describe("ftrack sync", () => {
 
   it("should update a note for FT-1234 in the PR body if already exists a note for it", async () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", (req, res, ctx) => {
+      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
+        // Ignoring session initalization request with query_schemas etc
+        if ((await req.json()).length > 1) return;
         return res(
           ctx.json([
             {
@@ -91,7 +93,9 @@ describe("ftrack sync", () => {
 
   it("should create a note for FT-1234 in the PR body if not already existing", async () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", (req, res, ctx) => {
+      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
+        // Ignoring session initalization request with query_schemas etc
+        if ((await req.json()).length > 1) return;
         return res(
           ctx.json([
             {
@@ -132,7 +136,9 @@ describe("ftrack sync", () => {
 
   it("should create notes for FT-1234 and FT-5678 in the PR body, updating 1234 and creating 5678", async () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", (req, res, ctx) => {
+      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
+        // Ignoring session initalization request with query_schemas etc
+        if ((await req.json()).length > 1) return;
         return res(
           ctx.json([
             {
@@ -195,7 +201,9 @@ describe("ftrack sync", () => {
   });
   it("show give correct status for draft PRs", async () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", (req, res, ctx) => {
+      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
+        // Ignoring session initalization request with query_schemas etc
+        if ((await req.json()).length > 1) return;
         return res(
           ctx.json([
             {
@@ -241,7 +249,9 @@ describe("ftrack sync", () => {
   });
   it("show give correct status for merged PRs", async () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", (req, res, ctx) => {
+      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
+        // Ignoring session initalization request with query_schemas etc
+        if ((await req.json()).length > 1) return;
         return res(
           ctx.json([
             {
@@ -287,7 +297,9 @@ describe("ftrack sync", () => {
   });
   it("should give correct status for open PRs", async () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", (req, res, ctx) => {
+      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
+        // Ignoring session initalization request with query_schemas etc
+        if ((await req.json()).length > 1) return;
         return res(
           ctx.json([
             {
@@ -334,7 +346,9 @@ describe("ftrack sync", () => {
 
   it("should make sure that each task has products or internal set", async () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", (req, res, ctx) => {
+      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
+        // Ignoring session initalization request with query_schemas etc
+        if ((await req.json()).length > 1) return;
         return res(
           ctx.json([
             {
