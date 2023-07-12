@@ -6,6 +6,8 @@ import {
   InternalChangeAttribute,
   ReleaseNoteAttribute,
   getTaskFromId,
+  ensureReleaseTagExists,
+  getSession,
 } from "./ftrack.js";
 import * as zendesk from "./zendesk.js";
 import { parse } from "node-html-parser";
@@ -94,7 +96,7 @@ async function getTaskDataFromTaskId(taskId: string): Promise<TaskData> {
   };
 }
 
-async function getTaskDataFromReleaseBody(
+export async function getTaskDataFromReleaseBody(
   releaseBody: string,
   owner: string,
   repo: string,
@@ -159,13 +161,12 @@ function toHtml(
 
 export async function generateReleaseNotes(
   product: "studio" | "review",
-  releaseBody: string,
+  taskData: TaskData[],
   owner: string,
   repo: string,
   tagName: string,
   originalBody: string,
 ) {
-  const taskData = await getTaskDataFromReleaseBody(releaseBody, owner, repo);
   const massagedData = processData(taskData);
   if (!massagedData[product]) return;
   const html = toHtml(
@@ -176,6 +177,36 @@ export async function generateReleaseNotes(
     tagName,
   );
   return html;
+}
+const RELEASES_CONFIGURATION_ID = "61f235ab-6109-4742-bba7-85bde3739c41";
+export async function updateTasksWithReleaseTag(
+  taskData: TaskData[],
+  repo: string,
+  tagName: string,
+) {
+  const releaseTag = await ensureReleaseTagExists(repo, tagName);
+  const existingLinks = (
+    await getSession().query(
+      `select from_id, to_id from CustomAttributeLink where to_id is '${
+        releaseTag.id
+      }' and from_id in (${taskData.map((task) => task.id).join(",")})`,
+    )
+  ).data.map((link) => link.from_id);
+  console.log("Existing links, not updating", existingLinks);
+  const customAttributeLinks = R.uniq(taskData.map((task) => task.id))
+    .filter((taskId) => !existingLinks.includes(taskId))
+    .map((taskId) => ({
+      action: "create",
+      entity_type: "CustomAttributeLink",
+      entity_data: {
+        configuration_id: RELEASES_CONFIGURATION_ID,
+        from_id: taskId,
+        to_id: releaseTag.id,
+      },
+    }));
+  console.log("Creating links", customAttributeLinks);
+  const response = await getSession().call(customAttributeLinks);
+  return response;
 }
 
 const RELEASE_NOTES_STUDIO_ARTICLE_ID = "15780555181719";
@@ -207,9 +238,13 @@ FTRACK_URL="[url]" GITHUB_TOKEN="[github pat]" RELEASE_JSON=[github release obje
     RELEASE_NOTES_REVIEW_ARTICLE_ID,
   );
 
+  const taskData = await getTaskDataFromReleaseBody(releaseBody, owner, repo);
+
+  await updateTasksWithReleaseTag(taskData, repo, tagName);
+
   const studioReleaseNotes = await generateReleaseNotes(
     "studio",
-    releaseBody,
+    taskData,
     owner,
     repo,
     tagName,
@@ -218,7 +253,7 @@ FTRACK_URL="[url]" GITHUB_TOKEN="[github pat]" RELEASE_JSON=[github release obje
 
   const reviewReleaseNotes = await generateReleaseNotes(
     "review",
-    releaseBody,
+    taskData,
     owner,
     repo,
     tagName,

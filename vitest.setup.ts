@@ -25,7 +25,12 @@ beforeEach(() => {
     rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
       const requestBody = await req.json();
       // Ignoring session initalization request with query_schemas etc
-      if (requestBody.length > 1) {
+      if (
+        requestBody.length === 2 &&
+        requestBody[0].action === "query_server_information" &&
+        requestBody[1].action === "query_schemas"
+      ) {
+        console.log("Ignoring session initalization request", requestBody);
         return res(ctx.json([{}, []]));
       }
     }),

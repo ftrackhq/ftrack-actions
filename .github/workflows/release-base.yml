@@ -24,7 +24,7 @@ on:
 
 jobs:
   zendesk:
-    name: Update release notes in Zendesk
+    name: Update release in Zendesk and ftrack
     runs-on: ubuntu-latest
     steps:
       # To check the github context
@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           # you can set this to your branch when modifying actions and want too assert that it works
-          # ref: backlog/generate-release-notes-automatically-from-fields-in-ftrack
+          # ref: update-tasks-with-release-tag
           path: workflows
           repository: ftrackhq/ftrack-actions
           token: ${{ secrets.token || secrets.GITHUB_TOKEN }}

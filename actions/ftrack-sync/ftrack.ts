@@ -2,7 +2,7 @@ import { Session } from "@ftrack/api";
 
 let _session: Session;
 
-function getSession() {
+export function getSession() {
   if (!_session) {
     _session = new Session(
       process.env.FTRACK_URL!,
@@ -34,6 +34,13 @@ interface Task {
   link: { name: string }[];
 }
 
+interface Release {
+  id: string;
+  parent_id: string;
+  project_id: string;
+  name: string;
+}
+
 interface Note {
   id: string;
   parent_id: string | null;
@@ -59,13 +66,40 @@ export async function getTaskFromId(taskId: string): Promise<Task> {
   ).data[0];
 }
 
+async function getReleaseFromName(
+  repo: string,
+  tagName: string,
+): Promise<Release> {
+  return (
+    await getSession().query<Release>(
+      `select id, name from Release where name is "${repo} ${tagName}"`,
+    )
+  ).data[0];
+}
+
+async function createRelease(repo: string, tagName: string): Promise<Release> {
+  return (
+    await getSession().create("Release", {
+      name: `${repo} ${tagName}`,
+      parent_id: "036f1f70-2d88-11ec-a4f5-ca3b22452d4a",
+      project_id: "dc34b754-79e8-11e3-b4d0-040102b7e101",
+    } as Release)
+  ).data;
+}
+
+export async function ensureReleaseTagExists(
+  repo: string,
+  tagName: string,
+): Promise<Release> {
+  const tagExists = await getReleaseFromName(repo, tagName);
+  if (!tagExists) {
+    return await createRelease(repo, tagName);
+  }
+  return tagExists;
+}
+
 export async function getNotesFromIds(noteIds: string[]) {
   return await getSession().query<Note>(
     `select id, parent_id from Note where id in (${noteIds.join(",")})`,
   );
-}
-
-export async function createNotes(notes: NoteRequestBody[]) {
-  console.log("Creating notes", JSON.stringify(notes));
-  return await getSession().call(notes);
 }

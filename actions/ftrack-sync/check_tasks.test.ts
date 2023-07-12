@@ -16,7 +16,7 @@ describe("ftrack sync", () => {
               action: "query",
               data: [
                 {
-                  id: "1234",
+                  id: "123a",
                   __entity_type__: "Task",
                   custom_attributes: [
                     { key: "products", value: [] },
@@ -31,13 +31,13 @@ describe("ftrack sync", () => {
     );
     expect(() =>
       assertTasksHaveProductFieldSet({
-        body: "Resolves FT-1234",
+        body: "Resolves FT-123a",
         draft: false,
         merged_at: "",
         state: "",
       }),
     ).rejects.toThrow(
-      `Task 1234 is missing products or internal_change attribute, please set them in ftrack `,
+      `Task 123a is missing products or internal_change attribute, please set them in ftrack `,
     );
   });
 
@@ -52,7 +52,7 @@ describe("ftrack sync", () => {
               action: "query",
               data: [
                 {
-                  id: "1234",
+                  id: "123a",
                   __entity_type__: "Task",
                   custom_attributes: [
                     { key: "products", value: ["studio"] },
@@ -67,7 +67,7 @@ describe("ftrack sync", () => {
     );
     expect(
       assertTasksHaveProductFieldSet({
-        body: "Resolves FT-1234",
+        body: "Resolves FT-123a",
         draft: false,
         merged_at: "",
         state: "",
@@ -86,7 +86,7 @@ describe("ftrack sync", () => {
               action: "query",
               data: [
                 {
-                  id: "1234",
+                  id: "123a",
                   __entity_type__: "Task",
                   custom_attributes: [
                     { key: "products", value: [] },
@@ -101,7 +101,7 @@ describe("ftrack sync", () => {
     );
     expect(
       assertTasksHaveProductFieldSet({
-        body: "Resolves FT-1234",
+        body: "Resolves FT-123a",
         draft: false,
         merged_at: "",
         state: "",
@@ -118,7 +118,7 @@ describe("ftrack sync", () => {
               action: "query",
               data: [
                 {
-                  id: "1234",
+                  id: "123a",
                   __entity_type__: "Task",
                   custom_attributes: [
                     { key: "products", value: ["studio"] },
@@ -133,7 +133,7 @@ describe("ftrack sync", () => {
     );
     expect(
       assertTasksHaveProductFieldSet({
-        body: "Resolves FT-1234",
+        body: "Resolves FT-123a",
         draft: false,
         merged_at: "",
         state: "",

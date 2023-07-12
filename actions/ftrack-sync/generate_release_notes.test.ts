@@ -9,15 +9,15 @@ import {
   vi,
 } from "vitest";
 import { server } from "../../test_server.js";
-import { generateReleaseNotes } from "./generate_release_notes.js";
+import {
+  generateReleaseNotes,
+  getTaskDataFromReleaseBody,
+  updateTasksWithReleaseTag,
+} from "./generate_release_notes.js";
 import { rest } from "msw";
 
 // Start server before all tests
 beforeAll(() => {
-  process.env.FTRACK_URL = "http://ftrackinstance.example";
-  process.env.FTRACK_LOGIN_EMAIL = "email@example.com";
-  process.env.FTRACK_USER_ID = "user-id";
-  process.env.GITHUB_TOKEN = "github-token";
   vi.useFakeTimers();
   vi.setSystemTime(new Date(2023, 6, 2, 0, 0, 0));
   server.listen({
@@ -60,35 +60,35 @@ describe("Generate release notes", () => {
       rest.get(
         "https://api.github.com/repos/test-owner/test-repo/pulls/510",
         (req, res, ctx) => {
-          return res(ctx.json({ body: "Resolves FT-1234" }));
+          return res(ctx.json({ body: "Resolves FT-123a" }));
         },
       ),
       rest.get(
         "https://api.github.com/repos/test-owner/test-repo/pulls/515",
         (req, res, ctx) => {
-          return res(ctx.json({ body: "Partially Resolves FT-4567" }));
+          return res(ctx.json({ body: "Partially Resolves FT-456a" }));
         },
       ),
       rest.get(
         "https://api.github.com/repos/test-owner/test-repo/pulls/516",
         (req, res, ctx) => {
-          return res(ctx.json({ body: "Partially Resolves FT-4567" }));
+          return res(ctx.json({ body: "Partially Resolves FT-456a" }));
         },
       ),
       rest.get(
         "https://api.github.com/repos/test-owner/test-repo/pulls/499",
         (req, res, ctx) => {
-          return res(ctx.json({ body: "Resolves FT-8910  FT-1231" }));
+          return res(ctx.json({ body: "Resolves FT-891a  FT-1231a" }));
         },
       ),
 
       rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        // Ignoring session initalization request with query_schemas etc
         const requestBody = await req.json();
 
-        if (requestBody.length > 1) return;
+        if (!requestBody[0].expression) return;
+
         const mocks = {
-          1234: {
+          "123a": {
             name: "Test 1",
             products: ["studio"],
             releaseNote: "",
@@ -122,7 +122,7 @@ describe("Generate release notes", () => {
               },
             ],
           },
-          4567: {
+          "456a": {
             name: "Test 2",
             type: "Bug",
             link: [
@@ -141,7 +141,7 @@ describe("Generate release notes", () => {
             internal: true,
             releaseNote: "",
           },
-          8910: {
+          "891a": {
             name: "Test 3",
             type: "Documentation",
             releaseNote: "",
@@ -149,7 +149,7 @@ describe("Generate release notes", () => {
             products: ["review", "studio", "default"],
             link: [],
           },
-          1231: {
+          "1231a": {
             name: "Test 4",
             type: "Bug",
             releaseNote: "Special release note",
@@ -158,11 +158,6 @@ describe("Generate release notes", () => {
             link: [],
           },
         } as const;
-
-        // Ignoring session initalization request with query_schemas etc
-        if (requestBody.length > 1) {
-          return res(ctx.json([{}, []]));
-        }
 
         const taskId = requestBody[0].expression.match(
           /where id is (.+)$/,
@@ -206,21 +201,29 @@ describe("Generate release notes", () => {
   it("Generates release notes from release data", async () => {
     const releaseNotes = await generateReleaseNotes(
       "studio",
-      releaseData.event.release.body,
+      await getTaskDataFromReleaseBody(
+        releaseData.event.release.body,
+        releaseData.owner,
+        releaseData.event.repository.name,
+      ),
       releaseData.owner,
       releaseData.event.repository.name,
       releaseData.event.release.tag_name,
       `<p id="header">Here are the latest release notes</p>`,
     );
     expect(releaseNotes).toEqual(
-      `<p id="header">Here are the latest release notes</p><h2>Latest changes</h2><ul><li data-taskid="1234" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 1</li><li data-taskid="8910" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 3</li></ul>`,
+      `<p id="header">Here are the latest release notes</p><h2>Latest changes</h2><ul><li data-taskid="123a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 1</li><li data-taskid="891a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 3</li></ul>`,
     );
   });
 
   it("Generates release notes from release data when already having earlier data", async () => {
     const releaseNotes = await generateReleaseNotes(
       "studio",
-      releaseData.event.release.body,
+      await getTaskDataFromReleaseBody(
+        releaseData.event.release.body,
+        releaseData.owner,
+        releaseData.event.repository.name,
+      ),
       releaseData.owner,
       releaseData.event.repository.name,
       releaseData.event.release.tag_name,
@@ -228,22 +231,139 @@ describe("Generate release notes", () => {
     );
 
     expect(releaseNotes).toEqual(
-      `<h2>Latest changes</h2><ul><li data-taskid="1234" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 1</li><li data-taskid="8910" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 3</li></ul><h2>2023-06.1</h2><ul><li id="0123">Previous release note 1</li><li id="345">Previous release note 2</li></ul>`,
+      `<h2>Latest changes</h2><ul><li data-taskid="123a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 1</li><li data-taskid="891a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 3</li></ul><h2>2023-06.1</h2><ul><li id="0123">Previous release note 1</li><li id="345">Previous release note 2</li></ul>`,
     );
   });
 
   it("Skips release notes if the same ID has already been posted", async () => {
     const releaseNotes = await generateReleaseNotes(
       "studio",
-      releaseData.event.release.body,
+      await getTaskDataFromReleaseBody(
+        releaseData.event.release.body,
+        releaseData.owner,
+        releaseData.event.repository.name,
+      ),
       releaseData.owner,
       releaseData.event.repository.name,
       releaseData.event.release.tag_name,
-      `<h2>2023-06.1</h2><ul><li data-taskid="8910">Previous release note 1</li><li data-taskid="345">Previous release note 2</li></ul>`,
+      `<h2>2023-06.1</h2><ul><li data-taskid="891a">Previous release note 1</li><li data-taskid="345">Previous release note 2</li></ul>`,
     );
 
     expect(releaseNotes).toEqual(
-      `<h2>Latest changes</h2><ul><li data-taskid="1234" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 1</li></ul><h2>2023-06.1</h2><ul><li data-taskid="8910">Previous release note 1</li><li data-taskid="345">Previous release note 2</li></ul>`,
+      `<h2>Latest changes</h2><ul><li data-taskid="123a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 1</li></ul><h2>2023-06.1</h2><ul><li data-taskid="891a">Previous release note 1</li><li data-taskid="345">Previous release note 2</li></ul>`,
     );
+  });
+
+  it("Updates tasks with release tag in ftrack", async () => {
+    server.use(
+      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
+        const requestBody = await req.json();
+        if (
+          requestBody[0].action == "query" &&
+          requestBody[0].expression.includes("from Release")
+        ) {
+          return res(
+            ctx.json([
+              {
+                action: "query",
+                data: [{ id: "release-id", name: "test-repo v1.0.1" }],
+              },
+            ]),
+          );
+        }
+
+        if (
+          requestBody[0].action == "create" &&
+          requestBody[0].entity_type === "ReleaseNoteLink"
+        ) {
+          return res(
+            ctx.json([
+              {
+                action: "create",
+                data: {
+                  id: "1fb9bba9-febb-4968-a2ba-cfdc1a210b53",
+                  name: "Test release",
+                  parent_id: "dc34b754-79e8-11e3-b4d0-040102b7e101",
+                  project_id: "dc34b754-79e8-11e3-b4d0-040102b7e101",
+                },
+              },
+            ]),
+          );
+        }
+
+        if (
+          requestBody.length > 2 &&
+          requestBody.every(
+            (r: { entity_type: string }) =>
+              r.entity_type === "CustomAttributeLink",
+          )
+        ) {
+          return res(ctx.json(requestBody));
+        }
+
+        if (
+          requestBody.length === 1 &&
+          requestBody[0].action === "query" &&
+          requestBody[0].expression.includes("from CustomAttributeLink")
+        ) {
+          return res(
+            ctx.json([
+              {
+                action: "query",
+                data: [
+                  {
+                    __entity_type__: "ContextCustomAttributeLink",
+                    id: "489429c9-40f9-43ba-9381-82cf48c6cf40",
+                    from_id: "123a",
+                    to_entity_type: "Context",
+                  },
+                ],
+              },
+            ]),
+          );
+        }
+      }),
+    );
+
+    const res = await updateTasksWithReleaseTag(
+      await getTaskDataFromReleaseBody(
+        releaseData.event.release.body,
+        releaseData.owner,
+        releaseData.event.repository.name,
+      ),
+      releaseData.event.repository.name,
+      releaseData.event.release.tag_name,
+    );
+
+    expect(res).toEqual([
+      // 123a is skipped since it exists already according to mock above
+      {
+        action: "create",
+        entity_data: {
+          configuration_id: "61f235ab-6109-4742-bba7-85bde3739c41",
+          from_id: "456a",
+          to_id: "release-id",
+        },
+        entity_type: "CustomAttributeLink",
+      },
+      {
+        action: "create",
+        entity_data: {
+          configuration_id: "61f235ab-6109-4742-bba7-85bde3739c41",
+          from_id: "891a",
+          to_id: "release-id",
+        },
+        entity_type: "CustomAttributeLink",
+      },
+      {
+        action: "create",
+        entity_data: {
+          configuration_id: "61f235ab-6109-4742-bba7-85bde3739c41",
+          from_id: "1231a",
+          to_id: "release-id",
+        },
+        entity_type: "CustomAttributeLink",
+      },
+    ]);
   });
 });

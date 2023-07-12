@@ -2,7 +2,7 @@ import { v5 as uuid } from "uuid";
 import {
   Action,
   NoteRequestBody,
-  createNotes,
+  getSession,
   getNotesFromIds,
 } from "./ftrack.js";
 import { PullRequest, getPullRequest } from "./github.js";
@@ -115,15 +115,15 @@ FTRACK_API_KEY="[dev api key]" PR_JSON='{"url":"https://github.com/ftrackhq/fron
   const pullRequest = getPullRequest();
   console.log("Input:", pullRequest);
 
-  const notes = await getNotesRequestBody(pullRequest);
+  const noteActions = await getNotesRequestBody(pullRequest);
 
-  if (notes.length === 0) {
+  if (noteActions.length === 0) {
     console.log("Couldn't find any notes to update, exiting...");
     process.exit(0);
   }
 
-  console.log("Creating notes:", notes);
-  const response = await createNotes(notes);
+  console.log("Creating notes:", noteActions);
+  const response = await getSession().call(noteActions);
   console.log("Response: ", response);
 }
 
