@@ -193,14 +193,14 @@ export async function updateTasksWithReleaseTag(
     )
   ).data.map((link) => link.from_id);
   console.log("Existing links, not updating", existingLinks);
-  const customAttributeLinks = taskData
-    .filter((task) => !existingLinks.includes(task.id))
-    .map((task) => ({
+  const customAttributeLinks = R.uniq(taskData.map((task) => task.id))
+    .filter((taskId) => !existingLinks.includes(taskId))
+    .map((taskId) => ({
       action: "create",
       entity_type: "CustomAttributeLink",
       entity_data: {
         configuration_id: RELEASES_CONFIGURATION_ID,
-        from_id: task.id,
+        from_id: taskId,
         to_id: releaseTag.id,
       },
     }));
