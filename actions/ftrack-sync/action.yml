@@ -44,7 +44,7 @@ runs:
       shell: bash
       run: |
         cd ${{ github.action_path }}
-        NODE_ENV=production yarn install --immutable
+        yarn workspaces focus --production --all
         yarn check-pr
       env:
         FTRACK_API_KEY: ${{ inputs.ftrackApiKey }}
@@ -58,7 +58,7 @@ runs:
       shell: bash
       run: |
         cd ${{ github.action_path }}
-        NODE_ENV=production yarn install --immutable
+        yarn workspaces focus --production --all
         yarn release-notes
       env:
         FTRACK_API_KEY: ${{ inputs.ftrackApiKey }}
