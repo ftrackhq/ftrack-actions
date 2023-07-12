@@ -42,30 +42,34 @@ describe("ftrack sync", () => {
     ).toEqual([]);
   });
 
-  it("should update a note for FT-1234 in the PR body if already exists a note for it", async () => {
+  it("should update a note for FT-123a in the PR body if already exists a note for it", async () => {
     server.use(
       rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        // Ignoring session initalization request with query_schemas etc
-        if ((await req.json()).length > 1) return;
-        return res(
-          ctx.json([
-            {
-              action: "query",
-              data: [
-                {
-                  parent_id: "1234",
-                  id: "a2cd73b2-6981-584a-97ec-05b3698740d8",
-                  __entity_type__: "Note",
-                },
-              ],
-            },
-          ]),
-        );
+        const requestBody = await req.json();
+        if (
+          requestBody[0].action === "query" &&
+          requestBody[0].expression.includes("from Note")
+        ) {
+          return res(
+            ctx.json([
+              {
+                action: "query",
+                data: [
+                  {
+                    parent_id: "123a",
+                    id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+                    __entity_type__: "Note",
+                  },
+                ],
+              },
+            ]),
+          );
+        }
       }),
     );
     expect(
       await getNotesRequestBody({
-        body: "hello FT-1234 world",
+        body: "hello FT-123a world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
         draft: false,
         merged_at: "",
@@ -74,11 +78,11 @@ describe("ftrack sync", () => {
     ).toEqual([
       {
         action: "update",
-        entity_key: "a2cd73b2-6981-584a-97ec-05b3698740d8",
+        entity_key: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
         entity_type: "Note",
         entity_data: {
-          id: "a2cd73b2-6981-584a-97ec-05b3698740d8",
-          parent_id: "1234",
+          id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+          parent_id: "123a",
           content:
             "PR opened: [ftrackhq/javascript-api/pulls/14](http://github.com/ftrackhq/javascript-api/pulls/14)\n" +
             "\n" +
@@ -91,24 +95,28 @@ describe("ftrack sync", () => {
     ]);
   });
 
-  it("should create a note for FT-1234 in the PR body if not already existing", async () => {
+  it("should create a note for FT-123a in the PR body if not already existing", async () => {
     server.use(
       rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        // Ignoring session initalization request with query_schemas etc
-        if ((await req.json()).length > 1) return;
-        return res(
-          ctx.json([
-            {
-              action: "query",
-              data: [],
-            },
-          ]),
-        );
+        const requestBody = await req.json();
+        if (
+          requestBody[0].action === "query" &&
+          requestBody[0].expression.includes("from Note")
+        ) {
+          return res(
+            ctx.json([
+              {
+                action: "query",
+                data: [],
+              },
+            ]),
+          );
+        }
       }),
     );
     expect(
       await getNotesRequestBody({
-        body: "hello FT-1234 world",
+        body: "hello FT-123a world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
         draft: false,
         merged_at: "",
@@ -117,11 +125,11 @@ describe("ftrack sync", () => {
     ).toEqual([
       {
         action: "create",
-        entity_key: "a2cd73b2-6981-584a-97ec-05b3698740d8",
+        entity_key: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
         entity_type: "Note",
         entity_data: {
-          id: "a2cd73b2-6981-584a-97ec-05b3698740d8",
-          parent_id: "1234",
+          id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+          parent_id: "123a",
           content:
             "PR opened: [ftrackhq/javascript-api/pulls/14](http://github.com/ftrackhq/javascript-api/pulls/14)\n" +
             "\n" +
@@ -134,31 +142,35 @@ describe("ftrack sync", () => {
     ]);
   });
 
-  it("should create notes for FT-1234 and FT-5678 in the PR body, updating 1234 and creating 5678", async () => {
+  it("should create notes for FT-123a and FT-5678 in the PR body, updating 123a and creating 5678", async () => {
     server.use(
       rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        // Ignoring session initalization request with query_schemas etc
-        if ((await req.json()).length > 1) return;
-        return res(
-          ctx.json([
-            {
-              action: "query",
-              data: [
-                {
-                  parent_id: "1234",
-                  id: "a2cd73b2-6981-584a-97ec-05b3698740d8",
-                  __entity_type__: "Note",
-                },
-              ],
-            },
-          ]),
-        );
+        const requestBody = await req.json();
+        if (
+          requestBody[0].action === "query" &&
+          requestBody[0].expression.includes("from Note")
+        ) {
+          return res(
+            ctx.json([
+              {
+                action: "query",
+                data: [
+                  {
+                    parent_id: "123a",
+                    id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+                    __entity_type__: "Note",
+                  },
+                ],
+              },
+            ]),
+          );
+        }
       }),
     );
 
     expect(
       await getNotesRequestBody({
-        body: "hello FT-1234 FT-5678 world",
+        body: "hello FT-123a FT-5678 world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
         draft: false,
         merged_at: "",
@@ -183,11 +195,11 @@ describe("ftrack sync", () => {
       },
       {
         action: "update",
-        entity_key: "a2cd73b2-6981-584a-97ec-05b3698740d8",
+        entity_key: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
         entity_type: "Note",
         entity_data: {
-          id: "a2cd73b2-6981-584a-97ec-05b3698740d8",
-          parent_id: "1234",
+          id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+          parent_id: "123a",
           content:
             "PR opened: [ftrackhq/javascript-api/pulls/14](http://github.com/ftrackhq/javascript-api/pulls/14)\n" +
             "\n" +
@@ -202,27 +214,31 @@ describe("ftrack sync", () => {
   it("show give correct status for draft PRs", async () => {
     server.use(
       rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        // Ignoring session initalization request with query_schemas etc
-        if ((await req.json()).length > 1) return;
-        return res(
-          ctx.json([
-            {
-              action: "query",
-              data: [
-                {
-                  parent_id: "1234",
-                  id: "a2cd73b2-6981-584a-97ec-05b3698740d8",
-                  __entity_type__: "Note",
-                },
-              ],
-            },
-          ]),
-        );
+        const requestBody = await req.json();
+        if (
+          requestBody[0].action === "query" &&
+          requestBody[0].expression.includes("from Note")
+        ) {
+          return res(
+            ctx.json([
+              {
+                action: "query",
+                data: [
+                  {
+                    parent_id: "123a",
+                    id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+                    __entity_type__: "Note",
+                  },
+                ],
+              },
+            ]),
+          );
+        }
       }),
     );
     expect(
       await getNotesRequestBody({
-        body: "hello FT-1234 world",
+        body: "hello FT-123a world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
         merged_at: "",
         state: "",
@@ -231,11 +247,11 @@ describe("ftrack sync", () => {
     ).toEqual([
       {
         action: "update",
-        entity_key: "a2cd73b2-6981-584a-97ec-05b3698740d8",
+        entity_key: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
         entity_type: "Note",
         entity_data: {
-          id: "a2cd73b2-6981-584a-97ec-05b3698740d8",
-          parent_id: "1234",
+          id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+          parent_id: "123a",
           content:
             "PR opened: [ftrackhq/javascript-api/pulls/14](http://github.com/ftrackhq/javascript-api/pulls/14)\n" +
             "\n" +
@@ -250,27 +266,31 @@ describe("ftrack sync", () => {
   it("show give correct status for merged PRs", async () => {
     server.use(
       rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        // Ignoring session initalization request with query_schemas etc
-        if ((await req.json()).length > 1) return;
-        return res(
-          ctx.json([
-            {
-              action: "query",
-              data: [
-                {
-                  parent_id: "1234",
-                  id: "a2cd73b2-6981-584a-97ec-05b3698740d8",
-                  __entity_type__: "Note",
-                },
-              ],
-            },
-          ]),
-        );
+        const requestBody = await req.json();
+        if (
+          requestBody[0].action === "query" &&
+          requestBody[0].expression.includes("from Note")
+        ) {
+          return res(
+            ctx.json([
+              {
+                action: "query",
+                data: [
+                  {
+                    parent_id: "123a",
+                    id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+                    __entity_type__: "Note",
+                  },
+                ],
+              },
+            ]),
+          );
+        }
       }),
     );
     expect(
       await getNotesRequestBody({
-        body: "hello FT-1234 world",
+        body: "hello FT-123a world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
         merged_at: "2022-10-17T07:58:36Z",
         draft: false,
@@ -279,11 +299,11 @@ describe("ftrack sync", () => {
     ).toEqual([
       {
         action: "update",
-        entity_key: "a2cd73b2-6981-584a-97ec-05b3698740d8",
+        entity_key: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
         entity_type: "Note",
         entity_data: {
-          id: "a2cd73b2-6981-584a-97ec-05b3698740d8",
-          parent_id: "1234",
+          id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+          parent_id: "123a",
           content:
             "PR opened: [ftrackhq/javascript-api/pulls/14](http://github.com/ftrackhq/javascript-api/pulls/14)\n" +
             "\n" +
@@ -298,27 +318,31 @@ describe("ftrack sync", () => {
   it("should give correct status for open PRs", async () => {
     server.use(
       rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        // Ignoring session initalization request with query_schemas etc
-        if ((await req.json()).length > 1) return;
-        return res(
-          ctx.json([
-            {
-              action: "query",
-              data: [
-                {
-                  parent_id: "1234",
-                  id: "a2cd73b2-6981-584a-97ec-05b3698740d8",
-                  __entity_type__: "Note",
-                },
-              ],
-            },
-          ]),
-        );
+        const requestBody = await req.json();
+        if (
+          requestBody[0].action === "query" &&
+          requestBody[0].expression.includes("from Note")
+        ) {
+          return res(
+            ctx.json([
+              {
+                action: "query",
+                data: [
+                  {
+                    parent_id: "123a",
+                    id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+                    __entity_type__: "Note",
+                  },
+                ],
+              },
+            ]),
+          );
+        }
       }),
     );
     expect(
       await getNotesRequestBody({
-        body: "hello FT-1234 world",
+        body: "hello FT-123a world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
         state: "open",
         draft: false,
@@ -327,11 +351,11 @@ describe("ftrack sync", () => {
     ).toEqual([
       {
         action: "update",
-        entity_key: "a2cd73b2-6981-584a-97ec-05b3698740d8",
+        entity_key: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
         entity_type: "Note",
         entity_data: {
-          id: "a2cd73b2-6981-584a-97ec-05b3698740d8",
-          parent_id: "1234",
+          id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+          parent_id: "123a",
           content:
             "PR opened: [ftrackhq/javascript-api/pulls/14](http://github.com/ftrackhq/javascript-api/pulls/14)\n" +
             "\n" +
@@ -347,22 +371,26 @@ describe("ftrack sync", () => {
   it("should make sure that each task has products or internal set", async () => {
     server.use(
       rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        // Ignoring session initalization request with query_schemas etc
-        if ((await req.json()).length > 1) return;
-        return res(
-          ctx.json([
-            {
-              action: "query",
-              data: [
-                {
-                  parent_id: "1234",
-                  id: "a2cd73b2-6981-584a-97ec-05b3698740d8",
-                  __entity_type__: "Note",
-                },
-              ],
-            },
-          ]),
-        );
+        const requestBody = await req.json();
+        if (
+          requestBody[0].action === "query" &&
+          requestBody[0].expression.includes("from Note")
+        ) {
+          return res(
+            ctx.json([
+              {
+                action: "query",
+                data: [
+                  {
+                    parent_id: "123a",
+                    id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+                    __entity_type__: "Note",
+                  },
+                ],
+              },
+            ]),
+          );
+        }
       }),
     );
   });

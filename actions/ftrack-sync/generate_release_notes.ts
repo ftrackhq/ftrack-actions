@@ -178,6 +178,36 @@ export async function generateReleaseNotes(
   );
   return html;
 }
+const RELEASES_CONFIGURATION_ID = "61f235ab-6109-4742-bba7-85bde3739c41";
+export async function updateTasksWithReleaseTag(
+  taskData: TaskData[],
+  repo: string,
+  tagName: string,
+) {
+  const releaseTag = await ensureReleaseTagExists(repo, tagName);
+  const existingLinks = (
+    await getSession().query(
+      `select from_id, to_id from CustomAttributeLink where to_id is '${
+        releaseTag.id
+      }' and from_id in (${taskData.map((task) => task.id).join(",")})`,
+    )
+  ).data.map((link) => link.from_id);
+  console.log("Existing links, not updating", existingLinks);
+  const customAttributeLinks = taskData
+    .filter((task) => !existingLinks.includes(task.id))
+    .map((task) => ({
+      action: "create",
+      entity_type: "CustomAttributeLink",
+      entity_data: {
+        configuration_id: RELEASES_CONFIGURATION_ID,
+        from_id: task.id,
+        to_id: releaseTag.id,
+      },
+    }));
+  const response = await getSession().call(customAttributeLinks);
+  console.log("Response", response);
+  return response;
+}
 
 const RELEASE_NOTES_STUDIO_ARTICLE_ID = "15780555181719";
 const RELEASE_NOTES_REVIEW_ARTICLE_ID = "14865283276951";
@@ -209,6 +239,8 @@ FTRACK_URL="[url]" GITHUB_TOKEN="[github pat]" RELEASE_JSON=[github release obje
   );
 
   const taskData = await getTaskDataFromReleaseBody(releaseBody, owner, repo);
+
+  await updateTasksWithReleaseTag(taskData, repo, tagName);
 
   const studioReleaseNotes = await generateReleaseNotes(
     "studio",
