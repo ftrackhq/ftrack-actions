@@ -39,6 +39,7 @@ interface Release {
   parent_id: string;
   project_id: string;
   name: string;
+  description: string;
 }
 
 interface Note {
@@ -81,6 +82,7 @@ async function createRelease(repo: string, tagName: string): Promise<Release> {
   return (
     await getSession().create("Release", {
       name: `${repo} ${tagName}`,
+      description: `<a href="https://github.com/ftrackhq/${repo}/releases/tag/${tagName}">Find release on GitHub</a>`,
       parent_id: "036f1f70-2d88-11ec-a4f5-ca3b22452d4a",
       project_id: "dc34b754-79e8-11e3-b4d0-040102b7e101",
     } as Release)
