@@ -9,7 +9,10 @@ import {
   vi,
 } from "vitest";
 import { server } from "../../test_server.js";
-import { generateReleaseNotes } from "./generate_release_notes.js";
+import {
+  generateReleaseNotes,
+  getTaskDataFromReleaseBody,
+} from "./generate_release_notes.js";
 import { rest } from "msw";
 
 // Start server before all tests
@@ -206,7 +209,11 @@ describe("Generate release notes", () => {
   it("Generates release notes from release data", async () => {
     const releaseNotes = await generateReleaseNotes(
       "studio",
-      releaseData.event.release.body,
+      await getTaskDataFromReleaseBody(
+        releaseData.event.release.body,
+        releaseData.owner,
+        releaseData.event.repository.name,
+      ),
       releaseData.owner,
       releaseData.event.repository.name,
       releaseData.event.release.tag_name,
@@ -220,7 +227,11 @@ describe("Generate release notes", () => {
   it("Generates release notes from release data when already having earlier data", async () => {
     const releaseNotes = await generateReleaseNotes(
       "studio",
-      releaseData.event.release.body,
+      await getTaskDataFromReleaseBody(
+        releaseData.event.release.body,
+        releaseData.owner,
+        releaseData.event.repository.name,
+      ),
       releaseData.owner,
       releaseData.event.repository.name,
       releaseData.event.release.tag_name,
@@ -235,7 +246,11 @@ describe("Generate release notes", () => {
   it("Skips release notes if the same ID has already been posted", async () => {
     const releaseNotes = await generateReleaseNotes(
       "studio",
-      releaseData.event.release.body,
+      await getTaskDataFromReleaseBody(
+        releaseData.event.release.body,
+        releaseData.owner,
+        releaseData.event.repository.name,
+      ),
       releaseData.owner,
       releaseData.event.repository.name,
       releaseData.event.release.tag_name,

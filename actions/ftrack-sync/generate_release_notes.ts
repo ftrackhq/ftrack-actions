@@ -6,6 +6,8 @@ import {
   InternalChangeAttribute,
   ReleaseNoteAttribute,
   getTaskFromId,
+  ensureReleaseTagExists,
+  getSession,
 } from "./ftrack.js";
 import * as zendesk from "./zendesk.js";
 import { parse } from "node-html-parser";
@@ -94,7 +96,7 @@ async function getTaskDataFromTaskId(taskId: string): Promise<TaskData> {
   };
 }
 
-async function getTaskDataFromReleaseBody(
+export async function getTaskDataFromReleaseBody(
   releaseBody: string,
   owner: string,
   repo: string,
@@ -159,13 +161,12 @@ function toHtml(
 
 export async function generateReleaseNotes(
   product: "studio" | "review",
-  releaseBody: string,
+  taskData: TaskData[],
   owner: string,
   repo: string,
   tagName: string,
   originalBody: string,
 ) {
-  const taskData = await getTaskDataFromReleaseBody(releaseBody, owner, repo);
   const massagedData = processData(taskData);
   if (!massagedData[product]) return;
   const html = toHtml(
@@ -207,9 +208,11 @@ FTRACK_URL="[url]" GITHUB_TOKEN="[github pat]" RELEASE_JSON=[github release obje
     RELEASE_NOTES_REVIEW_ARTICLE_ID,
   );
 
+  const taskData = await getTaskDataFromReleaseBody(releaseBody, owner, repo);
+
   const studioReleaseNotes = await generateReleaseNotes(
     "studio",
-    releaseBody,
+    taskData,
     owner,
     repo,
     tagName,
@@ -218,7 +221,7 @@ FTRACK_URL="[url]" GITHUB_TOKEN="[github pat]" RELEASE_JSON=[github release obje
 
   const reviewReleaseNotes = await generateReleaseNotes(
     "review",
-    releaseBody,
+    taskData,
     owner,
     repo,
     tagName,
