@@ -364,15 +364,6 @@ describe("Generate release notes", () => {
         },
         entity_type: "CustomAttributeLink",
       },
-      {
-        action: "create",
-        entity_data: {
-          configuration_id: "61f235ab-6109-4742-bba7-85bde3739c41",
-          from_id: "456a",
-          to_id: "release-id",
-        },
-        entity_type: "CustomAttributeLink",
-      },
     ]);
   });
 });
