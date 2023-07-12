@@ -204,6 +204,7 @@ export async function updateTasksWithReleaseTag(
         to_id: releaseTag.id,
       },
     }));
+  console.log("Creating links", customAttributeLinks);
   const response = await getSession().call(customAttributeLinks);
   console.log("Response", response);
   return response;
