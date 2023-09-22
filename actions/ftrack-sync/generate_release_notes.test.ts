@@ -212,7 +212,7 @@ describe("Generate release notes", () => {
       `<p id="header">Here are the latest release notes</p>`,
     );
     expect(releaseNotes).toEqual(
-      `<p id="header">Here are the latest release notes</p><h2>Latest changes</h2><ul><li data-taskid="123a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 1</li><li data-taskid="891a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 3</li></ul>`,
+      `<p id="header">Here are the latest release notes</p><h2>Latest changes</h2><ul><li data-taskid="123a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 1 <span class="wysiwyg-font-size-small wysiwyg-color-black20">(test-repo/v1.0.1)</span></li><li data-taskid="891a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 3 <span class="wysiwyg-font-size-small wysiwyg-color-black20">(test-repo/v1.0.1)</span></li></ul>`,
     );
   });
 
@@ -231,7 +231,7 @@ describe("Generate release notes", () => {
     );
 
     expect(releaseNotes).toEqual(
-      `<h2>Latest changes</h2><ul><li data-taskid="123a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 1</li><li data-taskid="891a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 3</li></ul><h2>2023-06.1</h2><ul><li id="0123">Previous release note 1</li><li id="345">Previous release note 2</li></ul>`,
+      `<h2>Latest changes</h2><ul><li data-taskid="123a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 1 <span class="wysiwyg-font-size-small wysiwyg-color-black20">(test-repo/v1.0.1)</span></li><li data-taskid="891a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 3 <span class="wysiwyg-font-size-small wysiwyg-color-black20">(test-repo/v1.0.1)</span></li></ul><h2>2023-06.1</h2><ul><li id="0123">Previous release note 1</li><li id="345">Previous release note 2</li></ul>`,
     );
   });
 
@@ -250,7 +250,7 @@ describe("Generate release notes", () => {
     );
 
     expect(releaseNotes).toEqual(
-      `<h2>Latest changes</h2><ul><li data-taskid="123a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 1</li></ul><h2>2023-06.1</h2><ul><li data-taskid="891a">Previous release note 1</li><li data-taskid="345">Previous release note 2</li></ul>`,
+      `<h2>Latest changes</h2><ul><li data-taskid="123a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 1 <span class="wysiwyg-font-size-small wysiwyg-color-black20">(test-repo/v1.0.1)</span></li></ul><h2>2023-06.1</h2><ul><li data-taskid="891a">Previous release note 1</li><li data-taskid="345">Previous release note 2</li></ul>`,
     );
   });
 

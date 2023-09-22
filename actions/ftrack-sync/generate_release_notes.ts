@@ -148,7 +148,7 @@ function toHtml(
       if (task.internal) continue;
       const taskType = task.type.toLowerCase() == "bug" ? "FIXED" : "NEW";
       const taskNode = parse(
-        `<li data-taskid="${task.id}" data-repo="${owner}/${repo}" data-tagname="${tagName}"><strong>${taskType}</strong> ${task.releaseNote}</li>`,
+        `<li data-taskid="${task.id}" data-repo="${owner}/${repo}" data-tagname="${tagName}"><strong>${taskType}</strong> ${task.releaseNote} <span class="wysiwyg-font-size-small wysiwyg-color-black20">(${repo}/${tagName})</span></li>`,
       );
       if (parsed.querySelector(`[data-taskid=${task.id}]`)) {
         continue;
@@ -209,8 +209,10 @@ export async function updateTasksWithReleaseTag(
   return response;
 }
 
-const RELEASE_NOTES_STUDIO_ARTICLE_ID = "15780555181719";
-const RELEASE_NOTES_REVIEW_ARTICLE_ID = "14865283276951";
+const REVIEW_BASE_URL = "https://help.ftrack-review.backlight.co/api/v2";
+const STUDIO_BASE_URL = "https://help.ftrack-studio.backlight.co/api/v2";
+const RELEASE_NOTES_STUDIO_ARTICLE_ID = "13129833866775";
+const RELEASE_NOTES_REVIEW_ARTICLE_ID = "13129302714519";
 
 async function main() {
   if (
@@ -232,9 +234,11 @@ FTRACK_URL="[url]" GITHUB_TOKEN="[github pat]" RELEASE_JSON=[github release obje
   const repo = releaseData.event.repository.name;
   const tagName = releaseData.event.release.tag_name;
   const studioArticle = await zendesk.getArticle(
+    STUDIO_BASE_URL,
     RELEASE_NOTES_STUDIO_ARTICLE_ID,
   );
   const reviewArticle = await zendesk.getArticle(
+    REVIEW_BASE_URL,
     RELEASE_NOTES_REVIEW_ARTICLE_ID,
   );
 
@@ -263,11 +267,13 @@ FTRACK_URL="[url]" GITHUB_TOKEN="[github pat]" RELEASE_JSON=[github release obje
   const [studioResult, reviewResult] = await Promise.all([
     studioReleaseNotes &&
       zendesk.updateArticle(
+        STUDIO_BASE_URL,
         studioReleaseNotes,
         RELEASE_NOTES_STUDIO_ARTICLE_ID,
       ),
     reviewReleaseNotes &&
       zendesk.updateArticle(
+        REVIEW_BASE_URL,
         reviewReleaseNotes,
         RELEASE_NOTES_REVIEW_ARTICLE_ID,
       ),
