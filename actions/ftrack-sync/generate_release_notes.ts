@@ -210,8 +210,8 @@ export async function updateTasksWithReleaseTag(
   return response;
 }
 
-const REVIEW_BASE_URL = "https://help.ftrack-review.backlight.co";
-const STUDIO_BASE_URL = "https://help.ftrack-studio.backlight.co";
+const REVIEW_BASE_URL = "https://ftrack-review.zendesk.com";
+const STUDIO_BASE_URL = "https://ftrack-studio.zendesk.com";
 const RELEASE_NOTES_STUDIO_ARTICLE_ID = "13129833866775";
 const RELEASE_NOTES_REVIEW_ARTICLE_ID = "13129302714519";
 
