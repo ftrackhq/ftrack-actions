@@ -12,15 +12,20 @@ const headers = {
 
 export async function getArticle(baseUrl: string, articleId: string) {
   const url = `${baseUrl}/api/v2/help_center/articles/${articleId}`;
-  console.log(
-    "Fetching zendesk with url:",
-    `${baseUrl}/api/v2/help_center/articles/${articleId}`,
-  );
-  return (
-    await fetch(url, {
-      headers,
-    })
-  ).json();
+  try {
+    console.log(
+      "Fetching zendesk with url:",
+      `${baseUrl}/api/v2/help_center/articles/${articleId}`,
+    );
+    return (
+      await fetch(url, {
+        headers,
+      })
+    ).json();
+  } catch (e) {
+    console.error("Error fetching zendesk article for url:", url, e);
+    throw e;
+  }
 }
 
 export async function updateArticle(
@@ -29,12 +34,16 @@ export async function updateArticle(
   articleId: string,
 ) {
   const url = `${baseUrl}/api/v2/help_center/articles/${articleId}/translations/en-us`;
-  console.log("Updating zendesk article on url:", url);
-  const result = await fetch(url, {
-    method: "PUT",
-    headers,
-    body: JSON.stringify({ translation: { body } }),
-  });
-
-  return await result.json();
+  try {
+    console.log("Updating zendesk article on url:", url);
+    const result = await fetch(url, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify({ translation: { body } }),
+    });
+    return await result.json();
+  } catch (e) {
+    console.error("Error updating zendesk article for url:", url, e);
+    throw e;
+  }
 }
