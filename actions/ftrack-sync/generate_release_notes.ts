@@ -234,6 +234,16 @@ FTRACK_URL="[url]" GITHUB_TOKEN="[github pat]" RELEASE_JSON=[github release obje
   const owner = releaseData.repository_owner;
   const repo = releaseData.event.repository.name;
   const tagName = releaseData.event.release.tag_name;
+
+  const taskData = await getTaskDataFromReleaseBody(releaseBody, owner, repo);
+
+  if (taskData.length === 0) {
+    console.log("No tasks found in release body, skipping.");
+    return;
+  }
+
+  await updateTasksWithReleaseTag(taskData, repo, tagName);
+
   const studioArticle = await zendesk.getArticle(
     STUDIO_BASE_URL,
     RELEASE_NOTES_STUDIO_ARTICLE_ID,
@@ -242,10 +252,6 @@ FTRACK_URL="[url]" GITHUB_TOKEN="[github pat]" RELEASE_JSON=[github release obje
     REVIEW_BASE_URL,
     RELEASE_NOTES_REVIEW_ARTICLE_ID,
   );
-
-  const taskData = await getTaskDataFromReleaseBody(releaseBody, owner, repo);
-
-  await updateTasksWithReleaseTag(taskData, repo, tagName);
 
   const studioReleaseNotes = await generateReleaseNotes(
     "studio",
