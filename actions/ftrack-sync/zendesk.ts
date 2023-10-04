@@ -11,8 +11,13 @@ const headers = {
 };
 
 export async function getArticle(baseUrl: string, articleId: string) {
+  const url = `${baseUrl}/api/v2/help_center/articles/${articleId}`;
+  console.log(
+    "Fetching zendesk with url:",
+    `${baseUrl}/api/v2/help_center/articles/${articleId}`,
+  );
   return (
-    await fetch(`${baseUrl}/api/v2/help_center/articles/${articleId}`, {
+    await fetch(url, {
       headers,
     })
   ).json();
@@ -23,10 +28,13 @@ export async function updateArticle(
   body: string,
   articleId: string,
 ) {
-  const result = await fetch(
-    `${baseUrl}/api/v2/help_center/articles/${articleId}/translations/en-us`,
-    { method: "PUT", headers, body: JSON.stringify({ translation: { body } }) },
-  );
+  const url = `${baseUrl}/api/v2/help_center/articles/${articleId}/translations/en-us`;
+  console.log("Updating zendesk article on url:", url);
+  const result = await fetch(url, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({ translation: { body } }),
+  });
 
   return await result.json();
 }

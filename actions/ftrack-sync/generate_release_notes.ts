@@ -244,6 +244,7 @@ FTRACK_URL="[url]" GITHUB_TOKEN="[github pat]" RELEASE_JSON=[github release obje
 
   await updateTasksWithReleaseTag(taskData, repo, tagName);
 
+  console.log("Fetching zendesk articles...");
   const studioArticle = await zendesk.getArticle(
     STUDIO_BASE_URL,
     RELEASE_NOTES_STUDIO_ARTICLE_ID,
@@ -252,6 +253,8 @@ FTRACK_URL="[url]" GITHUB_TOKEN="[github pat]" RELEASE_JSON=[github release obje
     REVIEW_BASE_URL,
     RELEASE_NOTES_REVIEW_ARTICLE_ID,
   );
+
+  console.log("Zendesk articles fetched, updating...");
 
   const studioReleaseNotes = await generateReleaseNotes(
     "studio",
@@ -270,6 +273,8 @@ FTRACK_URL="[url]" GITHUB_TOKEN="[github pat]" RELEASE_JSON=[github release obje
     tagName,
     reviewArticle.article.body,
   );
+
+  console.log("Release notes generated, updating zendesk...");
 
   const [studioResult, reviewResult] = await Promise.all([
     studioReleaseNotes &&
