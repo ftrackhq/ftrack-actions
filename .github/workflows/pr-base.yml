@@ -18,6 +18,7 @@ on:
 
 jobs:
   check-pr:
+    timeout-minutes: 5
     name: Check PR & Sync
     runs-on: ubuntu-latest
     steps:

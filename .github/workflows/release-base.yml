@@ -24,6 +24,7 @@ on:
 
 jobs:
   zendesk:
+    timeout-minutes: 5
     name: Update release in Zendesk and ftrack
     runs-on: ubuntu-latest
     steps:
