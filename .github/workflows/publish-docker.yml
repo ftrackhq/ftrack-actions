@@ -69,6 +69,7 @@ on:
 
 jobs:
   build-and-push-image:
+    timeout-minutes: ${{ fromJSON(vars.DEFAULT_JOB_TIMEOUT) }}
     name: "Build and push to registries"
     runs-on: ubuntu-latest
 

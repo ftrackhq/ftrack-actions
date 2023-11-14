@@ -9,6 +9,7 @@ env:
 
 jobs:
   test-js:
+    timeout-minutes: ${{ fromJSON(vars.DEFAULT_JOB_TIMEOUT) }}
     name: Test
     runs-on: ubuntu-latest
     steps:
