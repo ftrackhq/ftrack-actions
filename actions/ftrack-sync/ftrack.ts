@@ -8,7 +8,10 @@ export function getSession() {
       process.env.FTRACK_URL!,
       process.env.FTRACK_LOGIN_EMAIL!,
       process.env.FTRACK_API_KEY!,
-      { additionalHeaders: { "ftrack-bulk": true } },
+      {
+        additionalHeaders: { "ftrack-bulk": true },
+        autoConnectEventHub: false,
+      },
     );
   }
   return _session;

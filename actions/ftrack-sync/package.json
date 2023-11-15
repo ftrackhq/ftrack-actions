@@ -12,7 +12,7 @@
     "release-notes": "yarn tsx generate_release_notes.ts"
   },
   "dependencies": {
-    "@ftrack/api": "1.7.0",
+    "@ftrack/api": "^1.8.4",
     "node-html-parser": "^6.1.5",
     "remeda": "^1.23.0",
     "tsx": "^3.12.7",
