@@ -39,7 +39,7 @@ export async function updateArticle(
     const result = await fetch(url, {
       method: "PUT",
       headers,
-      body: JSON.stringify({ translation: { body } }),
+      body: JSON.stringify({ translation: { body, draft: true } }),
     });
     return await result.json();
   } catch (e) {
