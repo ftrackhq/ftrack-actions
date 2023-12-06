@@ -1,6 +1,6 @@
 import { beforeAll, afterAll, afterEach, beforeEach } from "vitest";
 import fetch from "cross-fetch";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { server } from "./test_server.js";
 
 global.fetch = fetch;
@@ -14,7 +14,7 @@ beforeAll(() => {
   server.listen({
     onUnhandledRequest(req) {
       throw new Error(
-        `Found an unhandled ${req.method} request to ${req.url.href}`,
+        `Found an unhandled ${req.method} request to ${new URL(req.url).href}`,
       );
     },
   });
@@ -22,16 +22,17 @@ beforeAll(() => {
 
 beforeEach(() => {
   server.use(
-    rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-      const requestBody = await req.json();
+    http.post(process.env.FTRACK_URL + "/api", async ({ request }) => {
+      const requestBody = await request.json();
       // Ignoring session initalization request with query_schemas etc
       if (
+        Array.isArray(requestBody) &&
         requestBody.length === 2 &&
         requestBody[0].action === "query_server_information" &&
         requestBody[1].action === "query_schemas"
       ) {
         console.log("Ignoring session initalization request", requestBody);
-        return res(ctx.json([{}, []]));
+        return HttpResponse.json([{}, []]);
       }
     }),
   );

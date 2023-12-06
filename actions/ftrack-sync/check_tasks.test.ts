@@ -2,31 +2,29 @@ import { describe, it, expect } from "vitest";
 import { assertTasksHaveProductFieldSet } from "./check_tasks.js";
 
 import { server } from "../../test_server.js";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 
 describe("ftrack sync", () => {
   it("Should fail if a task does not have a product, or internal_change set", () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
+      http.post(process.env.FTRACK_URL + "/api", async ({ request }) => {
         // Ignoring session initalization request with query_schemas etc
-        if ((await req.json()).length > 1) return;
-        return res(
-          ctx.json([
-            {
-              action: "query",
-              data: [
-                {
-                  id: "123a",
-                  __entity_type__: "Task",
-                  custom_attributes: [
-                    { key: "products", value: [] },
-                    { key: "internal_change", value: false },
-                  ],
-                },
-              ],
-            },
-          ]),
-        );
+        if (((await request.clone().json()) as unknown[]).length > 1) return;
+        return HttpResponse.json([
+          {
+            action: "query",
+            data: [
+              {
+                id: "123a",
+                __entity_type__: "Task",
+                custom_attributes: [
+                  { key: "products", value: [] },
+                  { key: "internal_change", value: false },
+                ],
+              },
+            ],
+          },
+        ]);
       }),
     );
     expect(() =>
@@ -43,26 +41,24 @@ describe("ftrack sync", () => {
 
   it("Should pass if a task does have a product", () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
+      http.post(process.env.FTRACK_URL + "/api", async ({ request }) => {
         // Ignoring session initalization request with query_schemas etc
-        if ((await req.json()).length > 1) return;
-        return res(
-          ctx.json([
-            {
-              action: "query",
-              data: [
-                {
-                  id: "123a",
-                  __entity_type__: "Task",
-                  custom_attributes: [
-                    { key: "products", value: ["studio"] },
-                    { key: "internal_change", value: false },
-                  ],
-                },
-              ],
-            },
-          ]),
-        );
+        if (((await request.json()) as unknown[]).length > 1) return;
+        return HttpResponse.json([
+          {
+            action: "query",
+            data: [
+              {
+                id: "123a",
+                __entity_type__: "Task",
+                custom_attributes: [
+                  { key: "products", value: ["studio"] },
+                  { key: "internal_change", value: false },
+                ],
+              },
+            ],
+          },
+        ]);
       }),
     );
     expect(
@@ -77,26 +73,24 @@ describe("ftrack sync", () => {
 
   it("Should pass if a task has internal set", () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
+      http.post(process.env.FTRACK_URL + "/api", async ({ request }) => {
         // Ignoring session initalization request with query_schemas etc
-        if ((await req.json()).length > 1) return;
-        return res(
-          ctx.json([
-            {
-              action: "query",
-              data: [
-                {
-                  id: "123a",
-                  __entity_type__: "Task",
-                  custom_attributes: [
-                    { key: "products", value: [] },
-                    { key: "internal_change", value: true },
-                  ],
-                },
-              ],
-            },
-          ]),
-        );
+        if (((await request.json()) as unknown[]).length > 1) return;
+        return HttpResponse.json([
+          {
+            action: "query",
+            data: [
+              {
+                id: "123a",
+                __entity_type__: "Task",
+                custom_attributes: [
+                  { key: "products", value: [] },
+                  { key: "internal_change", value: true },
+                ],
+              },
+            ],
+          },
+        ]);
       }),
     );
     expect(
@@ -111,24 +105,22 @@ describe("ftrack sync", () => {
 
   it("Should pass if a task has both set", () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", (req, res, ctx) => {
-        return res(
-          ctx.json([
-            {
-              action: "query",
-              data: [
-                {
-                  id: "123a",
-                  __entity_type__: "Task",
-                  custom_attributes: [
-                    { key: "products", value: ["studio"] },
-                    { key: "internal_change", value: true },
-                  ],
-                },
-              ],
-            },
-          ]),
-        );
+      http.post(process.env.FTRACK_URL + "/api", () => {
+        return HttpResponse.json([
+          {
+            action: "query",
+            data: [
+              {
+                id: "123a",
+                __entity_type__: "Task",
+                custom_attributes: [
+                  { key: "products", value: ["studio"] },
+                  { key: "internal_change", value: true },
+                ],
+              },
+            ],
+          },
+        ]);
       }),
     );
     expect(

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, vi } from "vitest";
 import { getNotesRequestBody } from "./sync_pr_status.js";
 import { server } from "../../test_server.js";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 
 // Start server before all tests
 beforeAll(() => {
@@ -44,26 +44,24 @@ describe("ftrack sync", () => {
 
   it("should update a note for FT-123a in the PR body if already exists a note for it", async () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        const requestBody = await req.json();
+      http.post(process.env.FTRACK_URL + "/api", async ({ request }) => {
+        const requestBody = (await request.clone().json()) as any;
         if (
           requestBody[0].action === "query" &&
           requestBody[0].expression.includes("from Note")
         ) {
-          return res(
-            ctx.json([
-              {
-                action: "query",
-                data: [
-                  {
-                    parent_id: "123a",
-                    id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
-                    __entity_type__: "Note",
-                  },
-                ],
-              },
-            ]),
-          );
+          return HttpResponse.json([
+            {
+              action: "query",
+              data: [
+                {
+                  parent_id: "123a",
+                  id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+                  __entity_type__: "Note",
+                },
+              ],
+            },
+          ]);
         }
       }),
     );
@@ -97,20 +95,18 @@ describe("ftrack sync", () => {
 
   it("should create a note for FT-123a in the PR body if not already existing", async () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        const requestBody = await req.json();
+      http.post(process.env.FTRACK_URL + "/api", async ({ request }) => {
+        const requestBody = (await request.json()) as any;
         if (
           requestBody[0].action === "query" &&
           requestBody[0].expression.includes("from Note")
         ) {
-          return res(
-            ctx.json([
-              {
-                action: "query",
-                data: [],
-              },
-            ]),
-          );
+          return HttpResponse.json([
+            {
+              action: "query",
+              data: [],
+            },
+          ]);
         }
       }),
     );
@@ -144,26 +140,24 @@ describe("ftrack sync", () => {
 
   it("should create notes for FT-123a and FT-5678 in the PR body, updating 123a and creating 5678", async () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        const requestBody = await req.json();
+      http.post(process.env.FTRACK_URL + "/api", async ({ request }) => {
+        const requestBody = (await request.json()) as any;
         if (
           requestBody[0].action === "query" &&
           requestBody[0].expression.includes("from Note")
         ) {
-          return res(
-            ctx.json([
-              {
-                action: "query",
-                data: [
-                  {
-                    parent_id: "123a",
-                    id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
-                    __entity_type__: "Note",
-                  },
-                ],
-              },
-            ]),
-          );
+          return HttpResponse.json([
+            {
+              action: "query",
+              data: [
+                {
+                  parent_id: "123a",
+                  id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+                  __entity_type__: "Note",
+                },
+              ],
+            },
+          ]);
         }
       }),
     );
@@ -213,26 +207,24 @@ describe("ftrack sync", () => {
   });
   it("show give correct status for draft PRs", async () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        const requestBody = await req.json();
+      http.post(process.env.FTRACK_URL + "/api", async ({ request }) => {
+        const requestBody = (await request.json()) as any;
         if (
           requestBody[0].action === "query" &&
           requestBody[0].expression.includes("from Note")
         ) {
-          return res(
-            ctx.json([
-              {
-                action: "query",
-                data: [
-                  {
-                    parent_id: "123a",
-                    id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
-                    __entity_type__: "Note",
-                  },
-                ],
-              },
-            ]),
-          );
+          return HttpResponse.json([
+            {
+              action: "query",
+              data: [
+                {
+                  parent_id: "123a",
+                  id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+                  __entity_type__: "Note",
+                },
+              ],
+            },
+          ]);
         }
       }),
     );
@@ -265,26 +257,24 @@ describe("ftrack sync", () => {
   });
   it("show give correct status for merged PRs", async () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        const requestBody = await req.json();
+      http.post(process.env.FTRACK_URL + "/api", async ({ request }) => {
+        const requestBody = (await request.json()) as any;
         if (
           requestBody[0].action === "query" &&
           requestBody[0].expression.includes("from Note")
         ) {
-          return res(
-            ctx.json([
-              {
-                action: "query",
-                data: [
-                  {
-                    parent_id: "123a",
-                    id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
-                    __entity_type__: "Note",
-                  },
-                ],
-              },
-            ]),
-          );
+          return HttpResponse.json([
+            {
+              action: "query",
+              data: [
+                {
+                  parent_id: "123a",
+                  id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+                  __entity_type__: "Note",
+                },
+              ],
+            },
+          ]);
         }
       }),
     );
@@ -317,26 +307,24 @@ describe("ftrack sync", () => {
   });
   it("should give correct status for open PRs", async () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        const requestBody = await req.json();
+      http.post(process.env.FTRACK_URL + "/api", async ({ request }) => {
+        const requestBody = (await request.json()) as any;
         if (
           requestBody[0].action === "query" &&
           requestBody[0].expression.includes("from Note")
         ) {
-          return res(
-            ctx.json([
-              {
-                action: "query",
-                data: [
-                  {
-                    parent_id: "123a",
-                    id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
-                    __entity_type__: "Note",
-                  },
-                ],
-              },
-            ]),
-          );
+          return HttpResponse.json([
+            {
+              action: "query",
+              data: [
+                {
+                  parent_id: "123a",
+                  id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+                  __entity_type__: "Note",
+                },
+              ],
+            },
+          ]);
         }
       }),
     );
@@ -370,26 +358,24 @@ describe("ftrack sync", () => {
 
   it("should make sure that each task has products or internal set", async () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        const requestBody = await req.json();
+      http.post(process.env.FTRACK_URL + "/api", async ({ request }) => {
+        const requestBody = (await request.json()) as any;
         if (
           requestBody[0].action === "query" &&
           requestBody[0].expression.includes("from Note")
         ) {
-          return res(
-            ctx.json([
-              {
-                action: "query",
-                data: [
-                  {
-                    parent_id: "123a",
-                    id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
-                    __entity_type__: "Note",
-                  },
-                ],
-              },
-            ]),
-          );
+          return HttpResponse.json([
+            {
+              action: "query",
+              data: [
+                {
+                  parent_id: "123a",
+                  id: "d657be5a-930f-5a63-9a40-ce4f28b79d5a",
+                  __entity_type__: "Note",
+                },
+              ],
+            },
+          ]);
         }
       }),
     );

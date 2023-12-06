@@ -14,7 +14,7 @@ import {
   getTaskDataFromReleaseBody,
   updateTasksWithReleaseTag,
 } from "./generate_release_notes.js";
-import { rest } from "msw";
+import { HttpResponse, PathParams, http } from "msw";
 
 // Start server before all tests
 beforeAll(() => {
@@ -23,7 +23,7 @@ beforeAll(() => {
   server.listen({
     onUnhandledRequest(req) {
       throw new Error(
-        `Found an unhandled ${req.method} request to ${req.url.href}`,
+        `Found an unhandled ${req.method} request to ${new URL(req.url).href}`,
       );
     },
   });
@@ -57,33 +57,33 @@ const releaseData = {
 describe("Generate release notes", () => {
   beforeEach(() => {
     server.use(
-      rest.get(
+      http.get(
         "https://api.github.com/repos/test-owner/test-repo/pulls/510",
-        (req, res, ctx) => {
-          return res(ctx.json({ body: "Resolves FT-123a" }));
+        () => {
+          return HttpResponse.json({ body: "Resolves FT-123a" });
         },
       ),
-      rest.get(
+      http.get(
         "https://api.github.com/repos/test-owner/test-repo/pulls/515",
-        (req, res, ctx) => {
-          return res(ctx.json({ body: "Partially Resolves FT-456a" }));
+        () => {
+          return HttpResponse.json({ body: "Partially Resolves FT-456a" });
         },
       ),
-      rest.get(
+      http.get(
         "https://api.github.com/repos/test-owner/test-repo/pulls/516",
-        (req, res, ctx) => {
-          return res(ctx.json({ body: "Partially Resolves FT-456a" }));
+        () => {
+          return HttpResponse.json({ body: "Partially Resolves FT-456a" });
         },
       ),
-      rest.get(
+      http.get(
         "https://api.github.com/repos/test-owner/test-repo/pulls/499",
-        (req, res, ctx) => {
-          return res(ctx.json({ body: "Resolves FT-891a  FT-1231a" }));
+        () => {
+          return HttpResponse.json({ body: "Resolves FT-891a  FT-1231a" });
         },
       ),
 
-      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        const requestBody = await req.json();
+      http.post(process.env.FTRACK_URL + "/api", async ({ request }) => {
+        const requestBody = (await request.clone().json()) as any[];
 
         if (!requestBody[0].expression) return;
 
@@ -162,38 +162,36 @@ describe("Generate release notes", () => {
         const taskId = requestBody[0].expression.match(
           /where id is (.+)$/,
         )[1] as keyof typeof mocks;
-        return res(
-          ctx.json([
-            {
-              action: "query",
-              data: [
-                {
-                  name: mocks[taskId].name ?? "Unknown task",
-                  id: taskId,
-                  __entity_type__: "Task",
-                  link: mocks[taskId].link,
-                  type: {
-                    name: mocks[taskId].type,
-                  },
-                  custom_attributes: [
-                    {
-                      value: mocks[taskId].products,
-                      key: "products",
-                    },
-                    {
-                      value: mocks[taskId].releaseNote,
-                      key: "release_note",
-                    },
-                    {
-                      value: mocks[taskId].internal,
-                      key: "internal_change",
-                    },
-                  ],
+        return HttpResponse.json([
+          {
+            action: "query",
+            data: [
+              {
+                name: mocks[taskId].name ?? "Unknown task",
+                id: taskId,
+                __entity_type__: "Task",
+                link: mocks[taskId].link,
+                type: {
+                  name: mocks[taskId].type,
                 },
-              ],
-            },
-          ]),
-        );
+                custom_attributes: [
+                  {
+                    value: mocks[taskId].products,
+                    key: "products",
+                  },
+                  {
+                    value: mocks[taskId].releaseNote,
+                    key: "release_note",
+                  },
+                  {
+                    value: mocks[taskId].internal,
+                    key: "internal_change",
+                  },
+                ],
+              },
+            ],
+          },
+        ]);
       }),
     );
   });
@@ -256,28 +254,31 @@ describe("Generate release notes", () => {
 
   it("Updates tasks with release tag in ftrack", async () => {
     server.use(
-      rest.post(process.env.FTRACK_URL + "/api", async (req, res, ctx) => {
-        const requestBody = await req.json();
-        if (
-          requestBody[0].action == "query" &&
-          requestBody[0].expression.includes("from Release")
-        ) {
-          return res(
-            ctx.json([
+      http.post<PathParams, any>(
+        process.env.FTRACK_URL + "/api",
+        async ({ request }) => {
+          const requestBody = (await request.clone().json()) as {
+            action: string;
+            expression: string;
+            entity_type: string;
+          }[];
+          if (
+            requestBody[0].action == "query" &&
+            requestBody[0].expression.includes("from Release")
+          ) {
+            return HttpResponse.json([
               {
                 action: "query",
                 data: [{ id: "release-id", name: "test-repo v1.0.1" }],
               },
-            ]),
-          );
-        }
+            ]);
+          }
 
-        if (
-          requestBody[0].action == "create" &&
-          requestBody[0].entity_type === "ReleaseNoteLink"
-        ) {
-          return res(
-            ctx.json([
+          if (
+            requestBody[0].action == "create" &&
+            requestBody[0].entity_type === "ReleaseNoteLink"
+          ) {
+            return HttpResponse.json([
               {
                 action: "create",
                 data: {
@@ -287,27 +288,25 @@ describe("Generate release notes", () => {
                   project_id: "dc34b754-79e8-11e3-b4d0-040102b7e101",
                 },
               },
-            ]),
-          );
-        }
+            ]);
+          }
 
-        if (
-          requestBody.length > 2 &&
-          requestBody.every(
-            (r: { entity_type: string }) =>
-              r.entity_type === "CustomAttributeLink",
-          )
-        ) {
-          return res(ctx.json(requestBody));
-        }
+          if (
+            requestBody.length > 2 &&
+            requestBody.every(
+              (r: { entity_type: string }) =>
+                r.entity_type === "CustomAttributeLink",
+            )
+          ) {
+            return HttpResponse.json(requestBody);
+          }
 
-        if (
-          requestBody.length === 1 &&
-          requestBody[0].action === "query" &&
-          requestBody[0].expression.includes("from CustomAttributeLink")
-        ) {
-          return res(
-            ctx.json([
+          if (
+            requestBody.length === 1 &&
+            requestBody[0].action === "query" &&
+            requestBody[0].expression.includes("from CustomAttributeLink")
+          ) {
+            return HttpResponse.json([
               {
                 action: "query",
                 data: [
@@ -319,10 +318,10 @@ describe("Generate release notes", () => {
                   },
                 ],
               },
-            ]),
-          );
-        }
-      }),
+            ]);
+          }
+        },
+      ),
     );
 
     const res = await updateTasksWithReleaseTag(
