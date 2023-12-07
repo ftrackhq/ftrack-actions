@@ -6,16 +6,17 @@
   "license": "Apache 2.0",
   "private": true,
   "scripts": {
-    "sync-pr-status": "yarn tsx sync_pr_status.ts",
-    "check-tasks": "yarn tsx check_tasks.ts",
-    "check-pr": "yarn sync-pr-status && yarn check-tasks",
-    "release-notes": "yarn tsx generate_release_notes.ts"
+    "sync-pr-status": "bun sync_pr_status.ts",
+    "check-tasks": "bun check_tasks.ts",
+    "check-pr": "bun run sync-pr-status && bun run check-tasks",
+    "release-notes": "bun generate_release_notes.ts",
+    "test": "yarn lint && vitest --run",
+    "lint": "eslint . && prettier -c ."
   },
   "dependencies": {
     "@ftrack/api": "^1.8.6",
     "node-html-parser": "^6.1.11",
     "remeda": "^1.29.0",
-    "tsx": "^4.6.2",
     "uuid": "^9.0.1",
     "ws": "^8.14.2"
   },
@@ -24,8 +25,13 @@
     "@types/ws": "^8.5.10",
     "cross-fetch": "^4.0.0",
     "msw": "2.0.10",
-    "typescript": "^5.3.2",
-    "vite": "^5.0.5",
-    "vitest": "^1.0.1"
+    "typescript": "^5.3.3",
+    "vite": "^5.0.6",
+    "vitest": "^1.0.2",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
+    "bun-types": "^1.0.15",
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.0"
   }
 }

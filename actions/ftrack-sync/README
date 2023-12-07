@@ -1,0 +1,35 @@
+# ftrack-sync
+
+Scripts to sync development work with an ftrack instance.
+
+## Installation
+
+```sh
+bun install
+```
+
+## Usage
+
+Syncing GitHub PR status with task:
+
+```sh
+FTRACK_API_KEY="" FTRACK_URL="" FTRACK_LOGIN_EMAIL="" FTRACK_USER_ID="" PR_JSON="" GITHUB_TOKEN="" FTRACK_USER_ID="" bun run sync-pr-status
+```
+
+Checking that tasks have all necessary data:
+
+```sh
+FTRACK_API_KEY="" FTRACK_URL="" FTRACK_LOGIN_EMAIL="" FTRACK_USER_ID="" PR_JSON="" GITHUB_TOKEN="" FTRACK_USER_ID="" bun run check-tasks
+```
+
+Syncing release notes:
+
+```sh
+FTRACK_API_KEY="" FTRACK_URL="" FTRACK_LOGIN_EMAIL="" FTRACK_USER_ID="" ZENDESK_API_KEY="" ZENDESK_USERNAME="" RELEASE_JSON="" GITHUB_TOKEN="" bun run release-notes
+```
+
+## Tests
+
+Run tests with `bun run test`.
+
+During development of unit tests, it's helpful to enable watch mode with `bun run vitest`.

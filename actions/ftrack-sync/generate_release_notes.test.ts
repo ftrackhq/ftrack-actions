@@ -8,7 +8,7 @@ import {
   beforeEach,
   vi,
 } from "vitest";
-import { server } from "../../test_server.js";
+import { server } from "./test_server.js";
 import {
   generateReleaseNotes,
   getTaskDataFromReleaseBody,

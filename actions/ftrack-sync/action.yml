@@ -24,28 +24,26 @@ inputs:
   token:
     description: "The GitHub token to use for authentication"
     required: true
-branding:
-  icon: refresh-cw
-  color: purple
 runs:
   using: "composite"
   steps:
-    - name: Set up Node
-      uses: actions/setup-node@v3
+    - name: Set up Bun
+      uses: oven-sh/setup-bun@v1
       with:
-        node-version: 20.4.0
+        bun-version: latest
+    - shell: bash
+      working-directory: ${{ github.action_path }}
+      run: bun install --production
     - uses: 8BitJonny/gh-get-current-pr@2.2.0
       if: ${{ inputs.action == 'check-pr' }}
       id: PR
       with:
         sha: ${{ github.event.pull_request.head.sha }}
-    - name: yarn check-pr
+    - name: bun run check-pr
+      working-directory: ${{ github.action_path }}
       if: ${{ inputs.action == 'check-pr' }}
       shell: bash
-      run: |
-        cd ${{ github.action_path }}
-        yarn workspaces focus --production --all
-        yarn check-pr
+      run: bun run check-pr
       env:
         FTRACK_API_KEY: ${{ inputs.ftrackApiKey }}
         FTRACK_URL: ${{ inputs.ftrackUrl }}
@@ -53,13 +51,11 @@ runs:
         FTRACK_USER_ID: ${{ inputs.ftrackUserId }}
         PR_JSON: ${{ steps.PR.outputs.pr }}
         GITHUB_TOKEN: ${{ inputs.token }}
-    - name: yarn release-notes
+    - name: bun run release-notes
+      working-directory: ${{ github.action_path }}
       if: ${{ inputs.action == 'release-notes' }}
       shell: bash
-      run: |
-        cd ${{ github.action_path }}
-        yarn workspaces focus --production --all
-        yarn release-notes
+      run: bun run release-notes
       env:
         FTRACK_API_KEY: ${{ inputs.ftrackApiKey }}
         FTRACK_URL: ${{ inputs.ftrackUrl }}

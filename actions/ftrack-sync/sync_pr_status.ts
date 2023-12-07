@@ -107,7 +107,7 @@ export async function getNotesRequestBody(
 async function main() {
   if (!process.env.FTRACK_API_KEY || !process.env.PR_JSON) {
     console.error(`This script is intended to be run in CI only. To run locally for development, use:
-FTRACK_API_KEY="[dev api key]" PR_JSON='{"url":"https://github.com/ftrackhq/frontend/pull/120","body":"Resolves FTRACK-c018c026-3599-11ed-8012-aab5768efa1e"}' yarn sync-pr-status
+FTRACK_API_KEY="[dev api key]" PR_JSON='{"url":"https://github.com/ftrackhq/frontend/pull/120","body":"Resolves FTRACK-c018c026-3599-11ed-8012-aab5768efa1e"}' bun run sync-pr-status
 `);
     process.exit(1);
   }

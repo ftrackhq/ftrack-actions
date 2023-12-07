@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { assertTasksHaveProductFieldSet } from "./check_tasks.js";
 
-import { server } from "../../test_server.js";
+import { server } from "./test_server.js";
 import { HttpResponse, http } from "msw";
 
 describe("ftrack sync", () => {
