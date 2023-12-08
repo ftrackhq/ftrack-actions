@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, vi } from "vitest";
 import { getNotesRequestBody } from "./sync_pr_status.js";
-import { server } from "../../test_server.js";
+import { server } from "./test_server.js";
 import { HttpResponse, http } from "msw";
 
 // Start server before all tests
