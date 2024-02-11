@@ -15,12 +15,6 @@ inputs:
   ftrackUserId:
     description: "The user ID to post notes as"
     required: true
-  zendeskApiKey:
-    description: "API key to the Zendesk instance"
-    required: false
-  zendeskUsername:
-    description: "Username to the Zendesk instance"
-    required: false
   token:
     description: "The GitHub token to use for authentication"
     required: true

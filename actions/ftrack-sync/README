@@ -32,4 +32,4 @@ FTRACK_API_KEY="" FTRACK_URL="" FTRACK_LOGIN_EMAIL="" FTRACK_USER_ID="" ZENDESK_
 
 Run tests with `bun run test`.
 
-During development of unit tests, it's helpful to enable watch mode with `bun run vitest`.
+During development of unit tests, it's helpful to enable watch mode with `bun test --watch`.

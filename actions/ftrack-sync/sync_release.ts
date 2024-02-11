@@ -2,15 +2,13 @@ import * as R from "remeda";
 import { getTaskIdsFromBody } from "./sync_pr_status.js";
 import { getPullRequestBody } from "./github.js";
 import {
-  ProductsAttribute,
-  InternalChangeAttribute,
-  ReleaseNoteAttribute,
+  type ProductsAttribute,
+  type InternalChangeAttribute,
+  type ReleaseNoteAttribute,
   getTaskFromId,
   ensureReleaseTagExists,
   getSession,
 } from "./ftrack.js";
-import * as zendesk from "./zendesk.js";
-import { parse } from "node-html-parser";
 
 export function getPrUrlsFromReleaseData(releaseBody: string): string[] {
   return (
@@ -42,30 +40,6 @@ export interface MessageData {
 
 export interface GroupedMessageData {
   [stream: string]: MessageData;
-}
-
-function processData(taskData: TaskData[]): GroupedMessageData {
-  // Unroll tasks with multiple products into multiple tasks with a single product
-  const unrolledByProduct = R.uniqWith(
-    taskData.flatMap((task) => {
-      const product = task.products.length > 0 ? task.products : ["default"];
-      return product.map((stream) => {
-        return { ...task, product: stream };
-      });
-    }),
-    R.equals,
-  );
-
-  const groupedByProduct = R.groupBy.strict(
-    unrolledByProduct,
-    (task) => task.product,
-  );
-
-  const groupStreamValuesByStory = R.mapValues(groupedByProduct, (tasks) => {
-    return R.groupBy.strict(tasks, (task) => task.story || "default");
-  });
-
-  return groupStreamValuesByStory;
 }
 
 async function getTaskDataFromTaskId(taskId: string): Promise<TaskData> {
@@ -113,71 +87,6 @@ export async function getTaskDataFromReleaseBody(
   ).flat();
 }
 
-function toHtml(
-  data: MessageData,
-  originalBody: string,
-  owner: string,
-  repo: string,
-  tagName: string,
-) {
-  const parsed = parse(originalBody);
-
-  let latestChangesH2 = parsed
-    .querySelectorAll("h2")
-    ?.find((node) => node.innerText.includes("Latest changes"));
-
-  if (!latestChangesH2) {
-    const header = parsed.querySelector("#header");
-    const latestChangesHtml = `<h2>Latest changes</h2><ul></ul>`;
-    if (header) {
-      header.insertAdjacentHTML("afterend", latestChangesHtml);
-    } else {
-      parsed.insertAdjacentHTML("afterbegin", latestChangesHtml);
-    }
-
-    latestChangesH2 =
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
-      parsed
-        .querySelectorAll("h2")
-        ?.find((node) => node.innerText.includes("Latest changes"))!;
-  }
-
-  const latestChangesUl = latestChangesH2.nextElementSibling;
-  for (const tasks of Object.values(data)) {
-    for (const task of tasks) {
-      if (task.internal) continue;
-      const taskType = task.type.toLowerCase() == "bug" ? "FIXED" : "NEW";
-      const taskNode = parse(
-        `<li data-taskid="${task.id}" data-repo="${owner}/${repo}" data-tagname="${tagName}"><strong>${taskType}</strong> ${task.releaseNote} <span class="wysiwyg-font-size-small wysiwyg-color-black20">(${repo}/${tagName})</span></li>`,
-      );
-      if (parsed.querySelector(`[data-taskid=${task.id}]`)) {
-        continue;
-      }
-      latestChangesUl.appendChild(taskNode);
-    }
-  }
-  return parsed.outerHTML;
-}
-
-export async function generateReleaseNotes(
-  product: "studio" | "review",
-  taskData: TaskData[],
-  owner: string,
-  repo: string,
-  tagName: string,
-  originalBody: string,
-) {
-  const massagedData = processData(taskData);
-  if (!massagedData[product]) return;
-  const html = toHtml(
-    massagedData[product],
-    originalBody,
-    owner,
-    repo,
-    tagName,
-  );
-  return html;
-}
 const RELEASES_CONFIGURATION_ID = "61f235ab-6109-4742-bba7-85bde3739c41";
 export async function updateTasksWithReleaseTag(
   taskData: TaskData[],
@@ -210,11 +119,6 @@ export async function updateTasksWithReleaseTag(
   return response;
 }
 
-const REVIEW_BASE_URL = "https://ftrack-review.zendesk.com";
-const STUDIO_BASE_URL = "https://ftrack-studio.zendesk.com";
-const RELEASE_NOTES_STUDIO_ARTICLE_ID = "13129833866775";
-const RELEASE_NOTES_REVIEW_ARTICLE_ID = "13129302714519";
-
 async function main() {
   if (
     !process.env.FTRACK_API_KEY ||
@@ -243,55 +147,6 @@ FTRACK_URL="[url]" GITHUB_TOKEN="[github pat]" RELEASE_JSON=[github release obje
   }
 
   await updateTasksWithReleaseTag(taskData, repo, tagName);
-
-  console.log("Fetching zendesk articles...");
-  const studioArticle = await zendesk.getArticle(
-    STUDIO_BASE_URL,
-    RELEASE_NOTES_STUDIO_ARTICLE_ID,
-  );
-  const reviewArticle = await zendesk.getArticle(
-    REVIEW_BASE_URL,
-    RELEASE_NOTES_REVIEW_ARTICLE_ID,
-  );
-
-  console.log("Zendesk articles fetched, updating...");
-
-  const studioReleaseNotes = await generateReleaseNotes(
-    "studio",
-    taskData,
-    owner,
-    repo,
-    tagName,
-    studioArticle.article.body,
-  );
-
-  const reviewReleaseNotes = await generateReleaseNotes(
-    "review",
-    taskData,
-    owner,
-    repo,
-    tagName,
-    reviewArticle.article.body,
-  );
-
-  console.log("Release notes generated, updating zendesk...");
-
-  const [studioResult, reviewResult] = await Promise.all([
-    studioReleaseNotes &&
-      zendesk.updateArticle(
-        STUDIO_BASE_URL,
-        studioReleaseNotes,
-        RELEASE_NOTES_STUDIO_ARTICLE_ID,
-      ),
-    reviewReleaseNotes &&
-      zendesk.updateArticle(
-        REVIEW_BASE_URL,
-        reviewReleaseNotes,
-        RELEASE_NOTES_REVIEW_ARTICLE_ID,
-      ),
-  ]);
-
-  console.log("Result", studioResult, reviewResult);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

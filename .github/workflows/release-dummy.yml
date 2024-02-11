@@ -1,0 +1,14 @@
+name: Release test
+
+on: deployment_status
+
+jobs:
+  test-js:
+    timeout-minutes: ${{ fromJSON(vars.DEFAULT_JOB_TIMEOUT) }}
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Dump GitHub context"
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"

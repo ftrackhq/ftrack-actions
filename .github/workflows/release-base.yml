@@ -6,11 +6,6 @@ on:
       - released
 
   workflow_call:
-    inputs:
-      zendeskUsername:
-        type: string
-        description: "The Zendesk username"
-        required: true
     secrets:
       ftrackApiKey:
         description: "The API key to the ftrack instance"
@@ -18,21 +13,13 @@ on:
       token:
         description: "The GitHub token"
         required: true
-      zendeskApiKey:
-        description: "Slack token"
-        required: true
 
 jobs:
-  zendesk:
+  sync-release:
     timeout-minutes: 5
-    name: Update release in Zendesk and ftrack
+    name: Sync release in ftrack
     runs-on: ubuntu-latest
     steps:
-      # To check the github context
-      - name: Dump Github context
-        env:
-          GITHUB_CONTEXT: ${{ toJSON(github) }}
-        run: echo "$GITHUB_CONTEXT"
       # required so we can reference the actions locally
       - name: Checkout workflows repo
         uses: actions/checkout@v3
@@ -50,6 +37,4 @@ jobs:
           ftrackLoginEmail: "github_bot@backlight.co"
           ftrackUserId: "76a40852-359d-11ed-8012-aab5768efa1e"
           ftrackApiKey: ${{ secrets.ftrackApiKey || secrets.FTRACK_API_KEY }}
-          zendeskApiKey: ${{ secrets.zendeskApiKey || secrets.ZENDESK_API_KEY }}
-          zendeskUsername: ${{ inputs.zendeskUsername }}
           token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
