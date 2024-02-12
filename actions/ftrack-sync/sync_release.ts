@@ -9,6 +9,7 @@ import {
   ensureReleaseTagExists,
   getSession,
 } from "./ftrack.js";
+import { checkEnvironment } from "./utils.js";
 
 export function getPrUrlsFromReleaseData(releaseBody: string): string[] {
   return (
@@ -120,20 +121,7 @@ export async function updateTasksWithReleaseTag(
 }
 
 async function main() {
-  if (
-    !process.env.FTRACK_API_KEY ||
-    !process.env.FTRACK_LOGIN_EMAIL ||
-    !process.env.FTRACK_URL ||
-    !process.env.RELEASE_JSON ||
-    !process.env.GITHUB_TOKEN
-  ) {
-    console.error(`This script is intended to be run in CI only. To run locally for development, use:
-FTRACK_URL="[url]" GITHUB_TOKEN="[github pat]" RELEASE_JSON=[github release object] FTRACK_API_KEY=[ftrack api key] FTRACK_LOGIN_EMAIL=[ftrack user email] yarn release-notes
-`);
-    process.exit(1);
-  }
-
-  const releaseData = JSON.parse(process.env.RELEASE_JSON);
+  const releaseData = JSON.parse(process.env.GITHUB_PAYLOAD!);
   const releaseBody = releaseData.event.release.body;
   const owner = releaseData.repository_owner;
   const repo = releaseData.event.repository.name;
@@ -150,5 +138,6 @@ FTRACK_URL="[url]" GITHUB_TOKEN="[github pat]" RELEASE_JSON=[github release obje
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
+  checkEnvironment();
   main();
 }

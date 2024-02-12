@@ -2,7 +2,7 @@ name: ftrack Sync
 description: "Sync PR status with ftrack tasks provided in PR descriptions"
 inputs:
   action:
-    description: "check-pr | release-notes"
+    description: "Check package.json for available scripts, e.g. check-pr or release-notes"
   ftrackUrl:
     description: "URL to the ftrack instance"
     required: true
@@ -18,6 +18,9 @@ inputs:
   token:
     description: "The GitHub token to use for authentication"
     required: true
+  context:
+    required: false
+    description: "Additional context required for actions in JSON format"
 runs:
   using: "composite"
   steps:
@@ -27,35 +30,21 @@ runs:
         bun-version: latest
     - shell: bash
       working-directory: ${{ github.action_path }}
-      run: bun install --production
-    - uses: 8BitJonny/gh-get-current-pr@2.2.0
-      if: ${{ inputs.action == 'check-pr' }}
+      run: bun install --production --frozen-lockfile
+    - uses: 8BitJonny/gh-get-current-pr@3.0.0
       id: PR
       with:
         sha: ${{ github.event.pull_request.head.sha }}
-    - name: bun run check-pr
+    - name: bun run ${{ inputs.action }}
       working-directory: ${{ github.action_path }}
-      if: ${{ inputs.action == 'check-pr' }}
       shell: bash
-      run: bun run check-pr
+      run: bun run ${{ inputs.action }}
       env:
+        GITHUB_TOKEN: ${{ inputs.token }}
         FTRACK_API_KEY: ${{ inputs.ftrackApiKey }}
         FTRACK_URL: ${{ inputs.ftrackUrl }}
         FTRACK_LOGIN_EMAIL: ${{ inputs.ftrackLoginEmail }}
         FTRACK_USER_ID: ${{ inputs.ftrackUserId }}
-        PR_JSON: ${{ steps.PR.outputs.pr }}
-        GITHUB_TOKEN: ${{ inputs.token }}
-    - name: bun run release-notes
-      working-directory: ${{ github.action_path }}
-      if: ${{ inputs.action == 'release-notes' }}
-      shell: bash
-      run: bun run release-notes
-      env:
-        FTRACK_API_KEY: ${{ inputs.ftrackApiKey }}
-        FTRACK_URL: ${{ inputs.ftrackUrl }}
-        FTRACK_LOGIN_EMAIL: ${{ inputs.ftrackLoginEmail }}
-        FTRACK_USER_ID: ${{ inputs.ftrackUserId }}
-        ZENDESK_API_KEY: ${{ inputs.zendeskApiKey }}
-        ZENDESK_USERNAME: ${{ inputs.zendeskUsername }}
-        RELEASE_JSON: ${{ toJson(github) }}
-        GITHUB_TOKEN: ${{ inputs.token }}
+        PR_PAYLOAD: ${{ steps.PR.outputs.pr }}
+        GITHUB_PAYLOAD: ${{ toJson(github) }}
+        CONTEXT: ${{ inputs.context }}

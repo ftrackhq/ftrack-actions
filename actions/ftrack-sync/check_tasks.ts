@@ -1,5 +1,6 @@
 import { getTaskFromId } from "./ftrack.js";
 import { type PullRequest, getPullRequest } from "./github.js";
+import { checkEnvironment } from "./utils.js";
 
 export function getTaskIdsFromBody(body: string) {
   return Array.from(body.matchAll(/(FTRACK|FT)-([\w\d-]+)/g))
@@ -31,18 +32,10 @@ export async function assertTasksHaveProductFieldSet(PR: PullRequest) {
 }
 
 async function main() {
-  if (!process.env.FTRACK_API_KEY || !process.env.EVENT_PR_PAYLOAD) {
-    console.error(`This script is intended to be run in CI only. To run locally for development, use:
-FTRACK_API_KEY="[dev api key]" EVENT_PR_PAYLOAD='{"url":"https://github.com/ftrackhq/frontend/pull/120","body":"Resolves FTRACK-c018c026-3599-11ed-8012-aab5768efa1e"}' yarn check-tasks
-`);
-    process.exit(1);
-  }
-
-  const pullRequest = getPullRequest();
-
-  await assertTasksHaveProductFieldSet(pullRequest);
+  await assertTasksHaveProductFieldSet(getPullRequest());
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
+  checkEnvironment();
   main();
 }

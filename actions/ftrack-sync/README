@@ -13,19 +13,19 @@ bun install
 Syncing GitHub PR status with task:
 
 ```sh
-FTRACK_API_KEY="" FTRACK_URL="" FTRACK_LOGIN_EMAIL="" FTRACK_USER_ID="" PR_JSON="" GITHUB_TOKEN="" FTRACK_USER_ID="" bun run sync-pr-status
+FTRACK_API_KEY="" FTRACK_URL="" FTRACK_LOGIN_EMAIL="" FTRACK_USER_ID="" PR_PAYLOAD="" GITHUB_TOKEN="" FTRACK_USER_ID="" bun run sync-pr-status
 ```
 
 Checking that tasks have all necessary data:
 
 ```sh
-FTRACK_API_KEY="" FTRACK_URL="" FTRACK_LOGIN_EMAIL="" FTRACK_USER_ID="" PR_JSON="" GITHUB_TOKEN="" FTRACK_USER_ID="" bun run check-tasks
+FTRACK_API_KEY="" FTRACK_URL="" FTRACK_LOGIN_EMAIL="" FTRACK_USER_ID="" PR_PAYLOAD="" GITHUB_TOKEN="" FTRACK_USER_ID="" bun run check-tasks
 ```
 
 Syncing release notes:
 
 ```sh
-FTRACK_API_KEY="" FTRACK_URL="" FTRACK_LOGIN_EMAIL="" FTRACK_USER_ID="" ZENDESK_API_KEY="" ZENDESK_USERNAME="" RELEASE_JSON="" GITHUB_TOKEN="" bun run release-notes
+FTRACK_API_KEY="" FTRACK_URL="" FTRACK_LOGIN_EMAIL="" FTRACK_USER_ID="" GITHUB_PAYLOAD="" GITHUB_TOKEN="" bun run release-notes
 ```
 
 ## Tests

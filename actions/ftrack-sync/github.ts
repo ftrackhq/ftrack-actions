@@ -7,7 +7,7 @@ export interface PullRequest {
 }
 
 export function getPullRequest(): PullRequest {
-  return JSON.parse(process.env.PR_JSON as string);
+  return JSON.parse(process.env.PR_PAYLOAD as string);
 }
 
 export async function getPullRequestBody(
