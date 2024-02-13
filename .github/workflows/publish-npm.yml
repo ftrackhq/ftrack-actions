@@ -1,9 +1,6 @@
 name: CD
 
 on:
-  push:
-    tags:
-      - "v*"
   workflow_call:
     secrets:
       token:

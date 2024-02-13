@@ -1,12 +1,8 @@
-export interface PullRequest {
-  body?: string | null;
-  html_url?: string;
-  draft: boolean;
-  merged_at: string;
-  state: string;
-}
+import type PRPayload from "./fixtures/pr_payload.json";
 
-export function getPullRequest(): PullRequest {
+export type PullRequest = Partial<typeof PRPayload>;
+
+export function getPullRequest(): typeof PRPayload {
   return JSON.parse(process.env.PR_PAYLOAD as string);
 }
 
@@ -41,4 +37,30 @@ export async function getPullRequestBody(
     );
     throw error;
   }
+}
+
+interface Approval {
+  user: {
+    login: "bjornrydahl";
+  };
+  state: "approved" | "denied";
+  comment: string;
+  environments: {
+    id: 2268336714;
+    name: "production";
+  }[];
+}
+
+export async function getApprovals(repo: string, owner: string, runId: string) {
+  const response = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/actions/runs/${runId}/approvals`,
+    {
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+    },
+  );
+  return (await response.json()) as Approval[];
 }

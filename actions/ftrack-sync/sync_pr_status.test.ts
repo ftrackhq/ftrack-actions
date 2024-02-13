@@ -7,10 +7,10 @@ describe("ftrack sync", () => {
   it("shouldn't do anything if not finding a FT-xxxxx in the PR body", async () => {
     expect(
       await getNotesRequestBody({
-        body: null,
+        body: undefined,
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
         draft: false,
-        merged_at: "",
+
         state: "",
       }),
     ).toEqual([]);
@@ -20,7 +20,7 @@ describe("ftrack sync", () => {
         body: "hello world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
         draft: false,
-        merged_at: "",
+
         state: "",
       }),
     ).toEqual([]);
@@ -30,7 +30,7 @@ describe("ftrack sync", () => {
         body: "hello FT- world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
         draft: false,
-        merged_at: "",
+
         state: "",
       }),
     ).toEqual([]);
@@ -64,7 +64,7 @@ describe("ftrack sync", () => {
         body: "hello FT-123a world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
         draft: false,
-        merged_at: "",
+
         state: "",
       }),
     ).toEqual([
@@ -109,7 +109,7 @@ describe("ftrack sync", () => {
         body: "hello FT-123a world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
         draft: false,
-        merged_at: "",
+
         state: "",
       }),
     ).toEqual([
@@ -161,7 +161,7 @@ describe("ftrack sync", () => {
         body: "hello FT-123a FT-5678 world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
         draft: false,
-        merged_at: "",
+
         state: "",
       }),
     ).toEqual([
@@ -226,7 +226,7 @@ describe("ftrack sync", () => {
       await getNotesRequestBody({
         body: "hello FT-123a world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
-        merged_at: "",
+
         state: "",
         draft: true,
       }),
@@ -276,9 +276,10 @@ describe("ftrack sync", () => {
       await getNotesRequestBody({
         body: "hello FT-123a world",
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
-        merged_at: "2022-10-17T07:58:36Z",
         draft: false,
         state: "",
+        // @ts-expect-error should fix type i guess
+        merged_at: "2022-01-01T00:00:00Z",
       }),
     ).toEqual([
       {
@@ -328,7 +329,6 @@ describe("ftrack sync", () => {
         html_url: "http://github.com/ftrackhq/javascript-api/pulls/14",
         state: "open",
         draft: false,
-        merged_at: "",
       }),
     ).toEqual([
       {

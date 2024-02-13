@@ -1,11 +1,12 @@
 name: Release notes
 
 on:
-  release:
-    types:
-      - released
-
   workflow_call:
+    inputs:
+      action:
+        type: string
+        description: "create-release | pre-deploy | post-deploy"
+        required: true
     secrets:
       ftrackApiKey:
         description: "The API key to the ftrack instance"
@@ -15,9 +16,10 @@ on:
         required: true
 
 jobs:
-  sync-release:
+  create-release:
     timeout-minutes: 5
     name: Sync release in ftrack
+    if: inputs.action == 'create-release'
     runs-on: ubuntu-latest
     steps:
       # required so we can reference the actions locally
@@ -38,3 +40,43 @@ jobs:
           ftrackUserId: "76a40852-359d-11ed-8012-aab5768efa1e"
           ftrackApiKey: ${{ secrets.ftrackApiKey || secrets.FTRACK_API_KEY }}
           token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+
+  pre-deploy:
+    timeout-minutes: 5
+    name: Create change request in ftrack
+    if: inputs.action == 'pre-deploy'
+    runs-on: ubuntu-latest
+    steps:
+      # required so we can reference the actions locally
+      - name: Checkout workflows repo
+        uses: actions/checkout@v3
+        with:
+          # you can set this to your branch when modifying actions and want too assert that it works
+          # ref: update-tasks-with-release-tag
+          path: workflows
+          repository: ftrackhq/ftrack-actions
+          token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+      - name: ftrack Sync
+        uses: ./workflows/actions/ftrack-sync
+        with:
+          action: "pre-deploy"
+
+  post-deploy:
+    timeout-minutes: 5
+    name: Sync approval of change request in ftrack
+    if: inputs.action == 'post-deploy'
+    runs-on: ubuntu-latest
+    steps:
+      # required so we can reference the actions locally
+      - name: Checkout workflows repo
+        uses: actions/checkout@v3
+        with:
+          # you can set this to your branch when modifying actions and want too assert that it works
+          # ref: update-tasks-with-release-tag
+          path: workflows
+          repository: ftrackhq/ftrack-actions
+          token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+      - name: ftrack Sync
+        uses: ./workflows/actions/ftrack-sync
+        with:
+          action: "post-deploy"

@@ -31,7 +31,6 @@ describe("ftrack sync", () => {
       assertTasksHaveProductFieldSet({
         body: "Resolves FT-123a",
         draft: false,
-        merged_at: "",
         state: "",
       }),
     ).rejects.toThrow(
@@ -65,7 +64,6 @@ describe("ftrack sync", () => {
       assertTasksHaveProductFieldSet({
         body: "Resolves FT-123a",
         draft: false,
-        merged_at: "",
         state: "",
       }),
     ).resolves.not.toThrow();
@@ -97,7 +95,6 @@ describe("ftrack sync", () => {
       assertTasksHaveProductFieldSet({
         body: "Resolves FT-123a",
         draft: false,
-        merged_at: "",
         state: "",
       }),
     ).resolves.not.toThrow();
@@ -127,7 +124,6 @@ describe("ftrack sync", () => {
       assertTasksHaveProductFieldSet({
         body: "Resolves FT-123a",
         draft: false,
-        merged_at: "",
         state: "",
       }),
     ).resolves.not.toThrow();
