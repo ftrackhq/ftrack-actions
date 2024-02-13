@@ -18,12 +18,3 @@ jobs:
         with:
           bun-version: latest
       - run: cd actions/ftrack-sync && bun install && bun run test
-      - name: ftrack Sync
-        uses: ./workflows/actions/ftrack-sync
-        with:
-          action: "release-notes"
-          ftrackUrl: https://dev.ftrackapp.com
-          ftrackLoginEmail: "github_bot@backlight.co"
-          ftrackUserId: "76a40852-359d-11ed-8012-aab5768efa1e"
-          ftrackApiKey: ${{ secrets.ftrackApiKey || secrets.FTRACK_API_KEY }}
-          token: ${{ secrets.token || secrets.GITHUB_TOKEN }}

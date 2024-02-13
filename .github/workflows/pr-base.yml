@@ -15,6 +15,9 @@ on:
       - edited
       - synchronize
       - closed
+  push:
+    tags:
+      - "v*"
 
 jobs:
   check-pr:
