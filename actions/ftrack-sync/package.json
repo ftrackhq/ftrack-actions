@@ -9,7 +9,8 @@
     "sync-pr-status": "bun sync_pr_status.ts",
     "check-tasks": "bun check_tasks.ts",
     "check-pr": "bun run sync-pr-status && bun run check-tasks",
-    "release-notes": "bun generate_release_notes.ts",
+    "release-notes": "bun sync_release.ts",
+    "sync-deployment-approval": "bun sync_deployment_approval.ts",
     "test": "yarn lint && vitest --run",
     "lint": "eslint . && prettier -c ."
   },

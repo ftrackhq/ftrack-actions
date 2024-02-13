@@ -15,6 +15,10 @@ on:
       - edited
       - synchronize
       - closed
+  push:
+    tags:
+      - "v*"
+  release:
 
 jobs:
   check-pr:
