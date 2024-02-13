@@ -43,7 +43,7 @@ describe("ftrack sync", () => {
     server.use(
       http.post(process.env.FTRACK_URL + "/api", async ({ request }) => {
         // Ignoring session initalization request with query_schemas etc
-        if (((await request.json()) as unknown[]).length > 1) return;
+        if (((await request.clone().json()) as unknown[]).length > 1) return;
         return HttpResponse.json([
           {
             action: "query",

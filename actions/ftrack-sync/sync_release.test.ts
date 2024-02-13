@@ -1,33 +1,10 @@
-import {
-  describe,
-  it,
-  expect,
-  beforeAll,
-  afterAll,
-  afterEach,
-  beforeEach,
-  vi,
-} from "vitest";
+import { describe, it, expect, afterAll, afterEach, beforeEach } from "vitest";
 import { server } from "./test_server.js";
 import {
-  generateReleaseNotes,
   getTaskDataFromReleaseBody,
   updateTasksWithReleaseTag,
-} from "./generate_release_notes.js";
-import { HttpResponse, PathParams, http } from "msw";
-
-// Start server before all tests
-beforeAll(() => {
-  vi.useFakeTimers();
-  vi.setSystemTime(new Date(2023, 6, 2, 0, 0, 0));
-  server.listen({
-    onUnhandledRequest(req) {
-      throw new Error(
-        `Found an unhandled ${req.method} request to ${new URL(req.url).href}`,
-      );
-    },
-  });
-});
+} from "./sync_release.js";
+import { HttpResponse, type PathParams, http } from "msw";
 
 //  Close server after all tests
 afterAll(() => server.close());
@@ -193,62 +170,6 @@ describe("Generate release notes", () => {
           },
         ]);
       }),
-    );
-  });
-
-  it("Generates release notes from release data", async () => {
-    const releaseNotes = await generateReleaseNotes(
-      "studio",
-      await getTaskDataFromReleaseBody(
-        releaseData.event.release.body,
-        releaseData.owner,
-        releaseData.event.repository.name,
-      ),
-      releaseData.owner,
-      releaseData.event.repository.name,
-      releaseData.event.release.tag_name,
-      `<p id="header">Here are the latest release notes</p>`,
-    );
-    expect(releaseNotes).toEqual(
-      `<p id="header">Here are the latest release notes</p><h2>Latest changes</h2><ul><li data-taskid="123a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 1 <span class="wysiwyg-font-size-small wysiwyg-color-black20">(test-repo/v1.0.1)</span></li><li data-taskid="891a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 3 <span class="wysiwyg-font-size-small wysiwyg-color-black20">(test-repo/v1.0.1)</span></li></ul>`,
-    );
-  });
-
-  it("Generates release notes from release data when already having earlier data", async () => {
-    const releaseNotes = await generateReleaseNotes(
-      "studio",
-      await getTaskDataFromReleaseBody(
-        releaseData.event.release.body,
-        releaseData.owner,
-        releaseData.event.repository.name,
-      ),
-      releaseData.owner,
-      releaseData.event.repository.name,
-      releaseData.event.release.tag_name,
-      `<h2>2023-06.1</h2><ul><li id="0123">Previous release note 1</li><li id="345">Previous release note 2</li></ul>`,
-    );
-
-    expect(releaseNotes).toEqual(
-      `<h2>Latest changes</h2><ul><li data-taskid="123a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 1 <span class="wysiwyg-font-size-small wysiwyg-color-black20">(test-repo/v1.0.1)</span></li><li data-taskid="891a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 3 <span class="wysiwyg-font-size-small wysiwyg-color-black20">(test-repo/v1.0.1)</span></li></ul><h2>2023-06.1</h2><ul><li id="0123">Previous release note 1</li><li id="345">Previous release note 2</li></ul>`,
-    );
-  });
-
-  it("Skips release notes if the same ID has already been posted", async () => {
-    const releaseNotes = await generateReleaseNotes(
-      "studio",
-      await getTaskDataFromReleaseBody(
-        releaseData.event.release.body,
-        releaseData.owner,
-        releaseData.event.repository.name,
-      ),
-      releaseData.owner,
-      releaseData.event.repository.name,
-      releaseData.event.release.tag_name,
-      `<h2>2023-06.1</h2><ul><li data-taskid="891a">Previous release note 1</li><li data-taskid="345">Previous release note 2</li></ul>`,
-    );
-
-    expect(releaseNotes).toEqual(
-      `<h2>Latest changes</h2><ul><li data-taskid="123a" data-repo="test-owner/test-repo" data-tagname="v1.0.1"><strong>NEW</strong> Test 1 <span class="wysiwyg-font-size-small wysiwyg-color-black20">(test-repo/v1.0.1)</span></li></ul><h2>2023-06.1</h2><ul><li data-taskid="891a">Previous release note 1</li><li data-taskid="345">Previous release note 2</li></ul>`,
     );
   });
 

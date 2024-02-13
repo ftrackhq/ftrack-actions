@@ -15,7 +15,7 @@
     "strict": true,
     "target": "ESNext",
     "useDefineForClassFields": true,
-    "types": ["bun-types"]
+    "verbatimModuleSyntax": true
   },
   "exclude": ["node_modules"]
 }

@@ -1,9 +1,7 @@
-import { beforeAll, afterAll, afterEach, beforeEach } from "vitest";
-import fetch from "cross-fetch";
+import { beforeAll, afterAll, afterEach, beforeEach, vi } from "vitest";
 import { HttpResponse, http } from "msw";
+import querySchemas from "./fixtures/query_schemas.json";
 import { server } from "./test_server.js";
-
-global.fetch = fetch;
 
 // Start server before all tests
 beforeAll(() => {
@@ -11,6 +9,8 @@ beforeAll(() => {
   process.env.FTRACK_LOGIN_EMAIL = "email@example.com";
   process.env.FTRACK_API_KEY = "test-key";
   process.env.FTRACK_USER_ID = "user-id";
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date(2022, 0, 1, 0, 0, 0));
   server.listen({
     onUnhandledRequest(req) {
       throw new Error(
@@ -23,7 +23,7 @@ beforeAll(() => {
 beforeEach(() => {
   server.use(
     http.post(process.env.FTRACK_URL + "/api", async ({ request }) => {
-      const requestBody = await request.json();
+      const requestBody = await request.clone().json();
       // Ignoring session initalization request with query_schemas etc
       if (
         Array.isArray(requestBody) &&
@@ -31,8 +31,7 @@ beforeEach(() => {
         requestBody[0].action === "query_server_information" &&
         requestBody[1].action === "query_schemas"
       ) {
-        console.log("Ignoring session initalization request", requestBody);
-        return HttpResponse.json([{}, []]);
+        return HttpResponse.json([{}, querySchemas]);
       }
     }),
   );

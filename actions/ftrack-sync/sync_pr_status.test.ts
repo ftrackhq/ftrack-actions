@@ -1,13 +1,7 @@
-import { describe, it, expect, beforeAll, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { getNotesRequestBody } from "./sync_pr_status.js";
 import { server } from "./test_server.js";
 import { HttpResponse, http } from "msw";
-
-// Start server before all tests
-beforeAll(() => {
-  vi.useFakeTimers();
-  vi.setSystemTime(new Date(2022, 0, 1, 0, 0, 0));
-});
 
 describe("ftrack sync", () => {
   it("shouldn't do anything if not finding a FT-xxxxx in the PR body", async () => {
