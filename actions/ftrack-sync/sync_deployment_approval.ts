@@ -30,6 +30,7 @@ export async function updateReleaseApprovalStatus(
 }
 
 async function main() {
+  console.log("Github payload:\n", process.env.GITHUB_PAYLOAD);
   const githubPayload = JSON.parse(process.env.GITHUB_PAYLOAD!);
   const context = JSON.parse(process.env.CONTEXT!) as {
     status: keyof typeof APPROVAL_STATUS;
