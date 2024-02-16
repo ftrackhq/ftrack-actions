@@ -25,6 +25,7 @@ jobs:
     timeout-minutes: 5
     name: Check PR & Sync
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: "Dump GitHub context"
         env:
