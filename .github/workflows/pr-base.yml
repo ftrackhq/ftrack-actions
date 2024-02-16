@@ -13,7 +13,6 @@ on:
     types:
       - opened
       - edited
-      - synchronize
       - closed
   push:
     tags:
@@ -28,6 +27,7 @@ jobs:
     environment: production
     steps:
       - name: "Dump GitHub context"
+        if: always()
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
