@@ -53,3 +53,13 @@ jobs:
           ftrackUserId: "76a40852-359d-11ed-8012-aab5768efa1e"
           ftrackApiKey: ${{ secrets.ftrackApiKey || secrets.FTRACK_API_KEY }}
           token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+
+  deploy-sync:
+    needs: check-pr
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+        if: always()
