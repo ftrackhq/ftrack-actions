@@ -18,6 +18,7 @@ on:
     tags:
       - "v*"
   release:
+  deployment:
 
 jobs:
   check-pr:
@@ -27,7 +28,6 @@ jobs:
     environment: production
     steps:
       - name: "Dump GitHub context"
-        if: always()
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
