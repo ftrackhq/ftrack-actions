@@ -57,6 +57,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - name: Checkout workflows repo
+        uses: actions/checkout@v3
+        with:
+          # you can set this to your branch when modifying actions and want too assert that it works
+          # ref: bunify
+          path: workflows
+          repository: ftrackhq/ftrack-actions
+          token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
       - name: Create change request object
         if: github.event_name == 'deployment'
         uses: ./workflows/actions/ftrack-sync
