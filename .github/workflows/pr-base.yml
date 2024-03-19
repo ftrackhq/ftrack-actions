@@ -25,7 +25,6 @@ jobs:
     timeout-minutes: 5
     name: Check PR & Sync
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - name: "Dump GitHub context"
         env:
@@ -55,11 +54,25 @@ jobs:
           token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
 
   deploy-sync:
-    needs: check-pr
     runs-on: ubuntu-latest
+    environment: production
     steps:
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
-        if: always()
+      - name: Create change request object
+        if: github.event_name == 'deployment'
+        uses: ./workflows/actions/ftrack-sync
+        with:
+          action: "pre-deploy"
+          ftrackUrl: https://dev.ftrackapp.com
+          ftrackLoginEmail: "github_bot@backlight.co"
+          ftrackUserId: "76a40852-359d-11ed-8012-aab5768efa1e"
+          ftrackApiKey: ${{ secrets.ftrackApiKey || secrets.FTRACK_API_KEY }}
+          token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+      - name: ftrack Sync
+        uses: ./workflows/actions/ftrack-sync
+        with:
+          action: "sync-deployment-approval"
+          ftrackUrl: https://dev.ftrackapp.com
+          ftrackLoginEmail: "github_bot@backlight.co"
+          ftrackUserId: "76a40852-359d-11ed-8012-aab5768efa1e"
+          ftrackApiKey: ${{ secrets.ftrackApiKey || secrets.FTRACK_API_KEY }}
+          token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
