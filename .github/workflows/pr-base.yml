@@ -40,7 +40,6 @@ jobs:
           repository: ftrackhq/ftrack-actions
           token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
       - name: Create change request object
-        if: github.event_name == 'deployment'
         uses: ./workflows/actions/ftrack-sync
         with:
           action: "sync-pre-deploy"
