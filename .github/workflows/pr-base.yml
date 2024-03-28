@@ -13,8 +13,12 @@ on:
     types:
       - opened
       - edited
-      - synchronize
       - closed
+  push:
+    tags:
+      - "v*"
+  release:
+  deployment:
 
 jobs:
   check-pr:
@@ -35,14 +39,32 @@ jobs:
           path: workflows
           repository: ftrackhq/ftrack-actions
           token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
-      - name: Check PR Title
-        uses: ./workflows/actions/check-pr-title
+      - name: Create change request object
+        uses: ./workflows/actions/ftrack-sync
         with:
+          action: "sync-pre-deploy"
+          ftrackUrl: https://dev.ftrackapp.com
+          ftrackLoginEmail: "github_bot@backlight.co"
+          ftrackUserId: "76a40852-359d-11ed-8012-aab5768efa1e"
+          ftrackApiKey: ${{ secrets.ftrackApiKey || secrets.FTRACK_API_KEY }}
+          token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+
+  deploy-sync:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout workflows repo
+        uses: actions/checkout@v3
+        with:
+          # you can set this to your branch when modifying actions and want too assert that it works
+          # ref: bunify
+          path: workflows
+          repository: ftrackhq/ftrack-actions
           token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
       - name: ftrack Sync
         uses: ./workflows/actions/ftrack-sync
         with:
-          action: "check-pr"
+          action: "sync-post-deploy"
           ftrackUrl: https://dev.ftrackapp.com
           ftrackLoginEmail: "github_bot@backlight.co"
           ftrackUserId: "76a40852-359d-11ed-8012-aab5768efa1e"

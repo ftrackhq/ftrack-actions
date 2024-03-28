@@ -16,8 +16,7 @@ export function getTaskIdsFromBody(body: string) {
     .flat();
 }
 
-function getTaskIdsAndNoteIdsFromBody(body: string, prUrl: string) {
-  const taskIds = getTaskIdsFromBody(body);
+function getNoteIdsFromTaskId(taskIds: string[], prUrl: string) {
   // generate a unique id for each note based on PR.html_url and taskId
   const uuids = taskIds.map((taskId) => ({
     noteId: uuid(prUrl + taskId, UUID_NAMESPACE),
@@ -96,9 +95,10 @@ export async function getNotesRequestBody(
   PR: PullRequest,
 ): Promise<NoteRequestBody[]> {
   if (!PR.body || !PR.html_url) return [];
-  const taskIds = getTaskIdsAndNoteIdsFromBody(PR.body, PR.html_url);
+  const taskIds = getTaskIdsFromBody(PR.body);
+  const noteIds = getNoteIdsFromTaskId(taskIds, PR.html_url);
   if (taskIds.length === 0) return [];
-  const { existingIds, newIds } = await groupIntoExistingAndNewNoteIds(taskIds);
+  const { existingIds, newIds } = await groupIntoExistingAndNewNoteIds(noteIds);
   return [
     ...newIds.map(getNoteRequestBody.bind(null, "create", PR)),
     ...existingIds.map(getNoteRequestBody.bind(null, "update", PR)),

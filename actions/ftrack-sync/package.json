@@ -9,27 +9,30 @@
     "sync-pr-status": "bun sync_pr_status.ts",
     "check-tasks": "bun check_tasks.ts",
     "check-pr": "bun run sync-pr-status && bun run check-tasks",
-    "release-notes": "bun generate_release_notes.ts",
+    "release-notes": "bun sync_release.ts",
+    "sync-post-deploy": "bun sync_deployment_approval.ts",
+    "sync-pre-deploy": "bun pre_deploy.ts",
     "test": "yarn lint && vitest --run",
     "lint": "eslint . && prettier -c ."
   },
   "dependencies": {
-    "@ftrack/api": "^1.9.0",
-    "remeda": "^1.40.2",
+    "@ftrack/api": "^1.9.1",
+    "bun": "",
+    "remeda": "^1.55.0",
     "uuid": "^9.0.1",
     "ws": "^8.16.0"
   },
   "devDependencies": {
-    "@types/bun": "^1.0.5",
+    "@types/bun": "^1.0.10",
     "@types/uuid": "^9.0.8",
     "@types/ws": "^8.5.10",
-    "vite": "^5.1.1",
-    "vitest": "^1.2.2",
-    "@typescript-eslint/eslint-plugin": "^7.0.1",
-    "@typescript-eslint/parser": "^7.0.1",
-    "eslint": "^8.56.0",
-    "msw": "2.2.0",
+    "vite": "^5.2.2",
+    "vitest": "^1.4.0",
+    "@typescript-eslint/eslint-plugin": "^7.3.1",
+    "@typescript-eslint/parser": "^7.3.1",
+    "eslint": "^8.57.0",
+    "msw": "2.2.9",
     "prettier": "^3.2.5",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.3"
   }
 }

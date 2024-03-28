@@ -1,12 +1,8 @@
-export interface PullRequest {
-  body?: string | null;
-  html_url?: string;
-  draft: boolean;
-  merged_at: string;
-  state: string;
-}
+import type PRPayload from "./fixtures/pr_payload.json";
 
-export function getPullRequest(): PullRequest {
+export type PullRequest = Partial<typeof PRPayload>;
+
+export function getPullRequest(): typeof PRPayload {
   return JSON.parse(process.env.PR_PAYLOAD as string);
 }
 
