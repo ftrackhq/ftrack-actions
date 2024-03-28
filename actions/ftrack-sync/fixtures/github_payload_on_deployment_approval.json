@@ -1,6 +1,6 @@
 {
   "token": "***",
-  "job": "check-pr",
+  "job": "deploy-sync",
   "ref": "refs/tags/v0.0.0-test.15",
   "sha": "9e521a4e60424553524775f96adef907d91b4d29",
   "repository": "ftrackhq/ftrack-actions",
@@ -228,11 +228,11 @@
   "event_path": "/home/runner/work/_temp/_github_workflow/event.json",
   "action_repository": "",
   "action_ref": "",
-  "path": "/home/runner/work/_temp/_runner_file_commands/add_path_7554f334-acc7-4640-b750-d16353641f32",
-  "env": "/home/runner/work/_temp/_runner_file_commands/set_env_7554f334-acc7-4640-b750-d16353641f32",
-  "step_summary": "/home/runner/work/_temp/_runner_file_commands/step_summary_7554f334-acc7-4640-b750-d16353641f32",
-  "state": "/home/runner/work/_temp/_runner_file_commands/save_state_7554f334-acc7-4640-b750-d16353641f32",
-  "output": "/home/runner/work/_temp/_runner_file_commands/set_output_7554f334-acc7-4640-b750-d16353641f32",
+  "path": "/home/runner/work/_temp/_runner_file_commands/add_path_f36b5be0-acbc-47df-9cbc-8ff3fd85bb03",
+  "env": "/home/runner/work/_temp/_runner_file_commands/set_env_f36b5be0-acbc-47df-9cbc-8ff3fd85bb03",
+  "step_summary": "/home/runner/work/_temp/_runner_file_commands/step_summary_f36b5be0-acbc-47df-9cbc-8ff3fd85bb03",
+  "state": "/home/runner/work/_temp/_runner_file_commands/save_state_f36b5be0-acbc-47df-9cbc-8ff3fd85bb03",
+  "output": "/home/runner/work/_temp/_runner_file_commands/set_output_f36b5be0-acbc-47df-9cbc-8ff3fd85bb03",
   "action_path": "/home/runner/work/ftrack-actions/ftrack-actions/./workflows/actions/ftrack-sync",
   "action_status": "success"
 }

@@ -18,21 +18,21 @@
   "dependencies": {
     "@ftrack/api": "^1.9.1",
     "bun": "",
-    "remeda": "^1.53.0",
+    "remeda": "^1.55.0",
     "uuid": "^9.0.1",
     "ws": "^8.16.0"
   },
   "devDependencies": {
-    "@types/bun": "^1.0.8",
+    "@types/bun": "^1.0.10",
     "@types/uuid": "^9.0.8",
     "@types/ws": "^8.5.10",
-    "vite": "^5.1.6",
+    "vite": "^5.2.2",
     "vitest": "^1.4.0",
     "@typescript-eslint/eslint-plugin": "^7.3.1",
     "@typescript-eslint/parser": "^7.3.1",
     "eslint": "^8.57.0",
-    "msw": "2.2.8",
+    "msw": "2.2.9",
     "prettier": "^3.2.5",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.3"
   }
 }
