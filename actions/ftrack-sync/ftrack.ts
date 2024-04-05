@@ -4,17 +4,26 @@ let _session: Session;
 
 export function getSession() {
   if (!_session) {
-    _session = new Session(
-      process.env.FTRACK_URL!,
-      process.env.FTRACK_LOGIN_EMAIL!,
-      process.env.FTRACK_API_KEY!,
-      {
-        additionalHeaders: { "ftrack-bulk": true },
-        autoConnectEventHub: false,
-      },
-    );
+    _session = createUserSession(process.env.FTRACK_LOGIN_EMAIL!, true);
   }
   return _session;
+}
+
+export function createUserSession(
+  userEmail: string,
+  dontStoreAsActivity = false,
+) {
+  return new Session(
+    process.env.FTRACK_URL!,
+    userEmail,
+    process.env.FTRACK_API_KEY!,
+    {
+      additionalHeaders: dontStoreAsActivity
+        ? { "ftrack-bulk": true }
+        : undefined,
+      autoConnectEventHub: false,
+    },
+  );
 }
 
 export type ProductsAttribute = { key: "products"; value: string[] };
@@ -101,6 +110,156 @@ export async function ensureReleaseTagExists(
     return await createRelease(repo, tagName);
   }
   return tagExists;
+}
+
+export async function getUserFromGithubUsername(username: string) {
+  return (
+    await getSession().query(
+      `select id, first_name, last_name, username from User where custom_attributes.key is 'github_user' and custom_attributes.value is ${username}`,
+    )
+  ).data[0];
+}
+
+export async function ensureChangeRequestExists(
+  release: Release,
+  actor: string,
+  ciUrl: string,
+  releaseUrl: string,
+) {
+  const changeRequestName = `Deploy ${release.name}`;
+  let changeRequest = (
+    await getSession().query(
+      `select id from Change where name is "${changeRequestName}"`,
+    )
+  ).data[0];
+  if (!changeRequest) {
+    const user = await getUserFromGithubUsername(actor);
+    const userSession = createUserSession(user.username, false);
+    changeRequest = (
+      await userSession.create("Change", {
+        name: changeRequestName,
+        parent_id: "f9497d8b-3026-46b4-96f4-a47aa9a73804",
+        project_id: "dc34b754-79e8-11e3-b4d0-040102b7e101",
+        description: "Follow the standard procedure.",
+      })
+    ).data;
+    const changeRequestId = changeRequest.id;
+
+    const TESTING_PROCEDURE_CONFIGURATION_ID =
+      "f723af2f-51fa-4d6d-ba2d-f813c4190db4";
+    const RELEVANT_DOCUMENTS_CONFIGURATION_ID =
+      "c431b396-30ab-415f-8784-b576a25df118";
+    const BACKOUT_PROCEDURE_CONFIGURATION_ID =
+      "a90b6217-8242-44a6-925f-31e5de1b7d9a";
+    const RISK_RATING_CONFIGURATION_ID = "93d705ee-d33e-4045-b899-0e9cbfb14ef0";
+    const APPROVAL_REQUIREMENT_CONFIGURATION_ID =
+      "0d779438-b7cc-48c1-bcc4-3adcae62d775";
+    const IMPACT_CONFIGURATION_ID = "03177562-6efa-47bd-8d7f-02e58ae6e070";
+    const GITHUB_CI_CONFIGURATION_ID = "e724e83d-8356-4ced-ac50-0987c222c526";
+    const GITHUB_RELEASE_CONFIGURATION_ID =
+      "7f1eedab-9eab-4a08-8210-c211af2fe290";
+    const RELEASE_LINK_CONFIGURATION_ID =
+      "8d962a2e-f756-466a-8f2c-418de09bcb56";
+
+    const customAttributes = [];
+    customAttributes.push(
+      getSession().create("CustomAttributeValue", {
+        configuration_id: TESTING_PROCEDURE_CONFIGURATION_ID,
+        entity_id: changeRequestId,
+        value: [
+          {
+            url: "https://docs.google.com/document/d/1z_gbXx9vMKho80UKYEW6d5POcFrdzdngeCtxibH90qw/edit#heading=h.lmq93bry7zi4",
+            name: "Google Docs",
+          },
+        ],
+      }),
+    );
+    customAttributes.push(
+      userSession.create("CustomAttributeValue", {
+        configuration_id: RELEVANT_DOCUMENTS_CONFIGURATION_ID,
+        entity_id: changeRequestId,
+        value: [
+          {
+            url: "https://docs.google.com/document/d/1z_gbXx9vMKho80UKYEW6d5POcFrdzdngeCtxibH90qw/edit#heading=h.lmq93bry7zi4",
+            name: "Google Docs",
+          },
+        ],
+      }),
+    );
+    customAttributes.push(
+      userSession.create("CustomAttributeValue", {
+        configuration_id: BACKOUT_PROCEDURE_CONFIGURATION_ID,
+        entity_id: changeRequestId,
+        value: [
+          {
+            url: "https://docs.google.com/document/d/1z_gbXx9vMKho80UKYEW6d5POcFrdzdngeCtxibH90qw/edit#heading=h.qfeny2946uh",
+            name: "Google Docs",
+          },
+        ],
+      }),
+    );
+    if (ciUrl) {
+      customAttributes.push(
+        userSession.create("CustomAttributeValue", {
+          configuration_id: GITHUB_CI_CONFIGURATION_ID,
+          entity_id: changeRequestId,
+          value: [
+            {
+              url: ciUrl,
+              name: "GitHub CI",
+            },
+          ],
+        }),
+      );
+    }
+    if (releaseUrl) {
+      customAttributes.push(
+        userSession.create("CustomAttributeValue", {
+          configuration_id: GITHUB_RELEASE_CONFIGURATION_ID,
+          entity_id: changeRequestId,
+          value: [
+            {
+              url: releaseUrl,
+              name: "GitHub Release",
+            },
+          ],
+        }),
+      );
+    }
+    customAttributes.push(
+      userSession.create("CustomAttributeValue", {
+        configuration_id: RISK_RATING_CONFIGURATION_ID,
+        entity_id: changeRequestId,
+        value: "low",
+      }),
+    );
+    customAttributes.push(
+      userSession.create("CustomAttributeValue", {
+        configuration_id: APPROVAL_REQUIREMENT_CONFIGURATION_ID,
+        entity_id: changeRequestId,
+        value: "peer",
+      }),
+    );
+    customAttributes.push(
+      userSession.create("CustomAttributeValue", {
+        configuration_id: IMPACT_CONFIGURATION_ID,
+        entity_id: changeRequestId,
+        value: "low",
+      }),
+    );
+
+    if (release.id) {
+      customAttributes.push(
+        userSession.create("CustomAttributeLink", {
+          configuration_id: RELEASE_LINK_CONFIGURATION_ID,
+          from_id: changeRequestId,
+          to_id: release.id,
+        }),
+      );
+    }
+    await Promise.all(customAttributes);
+  }
+  return changeRequest;
 }
 
 export async function getNotesFromIds(noteIds: string[]) {
