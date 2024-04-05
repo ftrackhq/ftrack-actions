@@ -69,6 +69,7 @@ describe("sync release approval status", () => {
                     first_name: "John",
                     last_name: "Doe",
                     email: "john.doe@example.com",
+                    username: "john.doe@example.com",
                   },
                 ],
               },
