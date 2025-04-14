@@ -29,7 +29,7 @@ inputs:
   sbom:
     description: Generate software bill of materials for the build
     required: false
-    default: false
+    default: true
   dockerBuildArgs:
     description: ""
     required: false
