@@ -89,4 +89,4 @@ jobs:
 
       - run: yarn npm publish --access public --tag ${{ env.NPM_TAG }} --provenance
         env:
-          YARN_NPM_AUTH_TOKEN: ${{ secrets.npmToken || secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.npmToken || secrets.NPM_TOKEN }}
