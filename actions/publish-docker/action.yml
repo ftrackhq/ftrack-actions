@@ -26,6 +26,10 @@ inputs:
     description: Generate provenance attestation for the build (shorthand for --attest=type=provenance). Currently not working with gcr
     required: false
     default: ""
+  sbom:
+    description: Generate software bill of materials for the build
+    required: false
+    default: true
   dockerBuildArgs:
     description: ""
     required: false
@@ -81,4 +85,5 @@ runs:
         cache-to: type=gha,mode=max
         target: ${{ inputs.target }}
         provenance: ${{ inputs.provenance }}
+        sbom: ${{ inputs.sbom }}
         secrets: ${{ inputs.dockerSecrets }}
