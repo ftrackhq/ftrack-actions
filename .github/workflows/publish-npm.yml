@@ -6,9 +6,6 @@ on:
       token:
         description: "The GitHub token"
         required: true
-      npmToken:
-        description: "NPM registry token"
-        required: true
     inputs:
       scope:
         type: string
@@ -38,6 +35,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -86,6 +84,4 @@ jobs:
 
         # ############# PUBLISH TO NPM #############
 
-      - run: yarn npm publish --access public --tag ${{ env.NPM_TAG }}
-        env:
-          YARN_NPM_AUTH_TOKEN: ${{ secrets.npmToken || secrets.NPM_TOKEN }}
+      - run: yarn npm publish --access public --tag ${{ env.NPM_TAG }} --provenance
